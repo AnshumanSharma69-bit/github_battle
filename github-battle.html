@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Battle Arena</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c-bg:#080810;--c-surface:#0e0e1a;--c-surface2:#13131f;
+  --c-border:#1e1e30;--c-border2:#2a2a40;
+  --c-blue:#4af0ff;--c-pink:#ff4af0;--c-green:#3dff9a;
+  --c-orange:#ff9a3d;--c-yellow:#ffe55c;
+  --c-text:#e4e4f0;--c-muted:#5a5a78;--c-dim:#3a3a55;
+  --ff-head:'Syne',sans-serif;--ff-mono:'JetBrains Mono',monospace;
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff-head);background:var(--c-bg);color:var(--c-text);min-height:100vh;overflow-x:hidden}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%,rgba(74,240,255,.05) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 30% at 80% 90%,rgba(255,74,240,.05) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 50% at 50% 50%,rgba(61,255,154,.03) 0%,transparent 70%);
+}
+#root{position:relative;z-index:1}
+.arena{max-width:1100px;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+
+/* Hero */
+.hero{text-align:center;margin-bottom:3rem;padding-top:1rem}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:.5rem;font-family:var(--ff-mono);
+  font-size:.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--c-muted);
+  border:1px solid var(--c-border2);padding:.35rem .9rem;border-radius:100px;
+  margin-bottom:1.25rem;background:rgba(255,255,255,.02);
+}
+.hero-eyebrow span{width:6px;height:6px;border-radius:50%;background:var(--c-green);animation:blink 2s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{
+  font-size:clamp(2.5rem,8vw,5rem);font-weight:800;line-height:.95;
+  letter-spacing:-2px;margin-bottom:1rem;
+  background:linear-gradient(135deg,#fff 0%,var(--c-blue) 45%,var(--c-pink) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{font-family:var(--ff-mono);color:var(--c-muted);font-size:.82rem;letter-spacing:1.5px;text-transform:uppercase}
+
+/* Input */
+.input-section{
+  background:var(--c-surface);border:1px solid var(--c-border2);border-radius:var(--r-xl);
+  padding:1.75rem;margin-bottom:1.75rem;position:relative;overflow:hidden;
+}
+.input-section::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--c-blue),var(--c-pink),transparent);
+}
+.input-row{display:grid;grid-template-columns:1fr auto 1fr;gap:1.25rem;align-items:end;margin-bottom:1.25rem}
+.input-group{display:flex;flex-direction:column;gap:.5rem}
+.input-label{font-family:var(--ff-mono);font-size:.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--c-muted);display:flex;align-items:center;gap:.4rem}
+.player-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.p1-dot{background:var(--c-blue);box-shadow:0 0 8px var(--c-blue)}
+.p2-dot{background:var(--c-pink);box-shadow:0 0 8px var(--c-pink)}
+.input-field{
+  background:#0a0a14;border:1px solid var(--c-border2);color:var(--c-text);
+  font-family:var(--ff-mono);font-size:.92rem;padding:.75rem 1rem;
+  border-radius:var(--r-md);width:100%;outline:none;transition:all .2s;
+}
+.input-field:focus{border-color:var(--c-blue);box-shadow:0 0 0 3px rgba(74,240,255,.08)}
+.input-field::placeholder{color:var(--c-dim)}
+.vs-circle{
+  width:48px;height:48px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--c-blue),var(--c-pink));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.8rem;color:#000;letter-spacing:1px;
+  box-shadow:0 0 20px rgba(74,240,255,.2);margin-bottom:2px;
+}
+.battle-btn{
+  width:100%;background:linear-gradient(135deg,rgba(74,240,255,.1),rgba(255,74,240,.1));
+  border:1px solid rgba(74,240,255,.3);color:var(--c-blue);font-family:var(--ff-head);
+  font-size:1rem;font-weight:700;padding:.9rem;border-radius:var(--r-md);cursor:pointer;
+  letter-spacing:2px;text-transform:uppercase;transition:all .25s;position:relative;overflow:hidden;
+}
+.battle-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(74,240,255,.15),rgba(255,74,240,.15));
+  opacity:0;transition:opacity .25s;
+}
+.battle-btn:hover:not(:disabled)::before{opacity:1}
+.battle-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 32px rgba(74,240,255,.2)}
+.battle-btn:active:not(:disabled){transform:translateY(0)}
+.battle-btn:disabled{opacity:.4;cursor:not-allowed}
+.battle-btn-inner{position:relative;display:flex;align-items:center;justify-content:center;gap:.6rem}
+
+/* Error */
+.error-box{
+  background:rgba(255,74,74,.08);border:1px solid rgba(255,74,74,.25);color:#ff8080;
+  padding:.8rem 1.1rem;border-radius:var(--r-md);font-size:.85rem;margin-bottom:1.5rem;
+  display:flex;align-items:center;gap:.6rem;
+}
+
+/* Loading */
+.loading-arena{padding:4rem 2rem;text-align:center}
+.loading-label{font-family:var(--ff-mono);font-size:.8rem;color:var(--c-muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem}
+.load-bars{display:flex;gap:.4rem;justify-content:center;align-items:flex-end;height:40px}
+.load-bar{width:6px;border-radius:3px;animation:loadbar 1.2s ease-in-out infinite}
+.load-bar:nth-child(1){background:var(--c-blue);animation-delay:0s}
+.load-bar:nth-child(2){background:#5ad8ff;animation-delay:.15s}
+.load-bar:nth-child(3){background:#9c94ff;animation-delay:.3s}
+.load-bar:nth-child(4){background:#d46aff;animation-delay:.45s}
+.load-bar:nth-child(5){background:var(--c-pink);animation-delay:.6s}
+@keyframes loadbar{0%,100%{height:8px;opacity:.4}50%{height:36px;opacity:1}}
+
+/* Winner Banner */
+.winner-banner{
+  background:linear-gradient(135deg,rgba(61,255,154,.06),rgba(74,240,255,.04));
+  border:1px solid rgba(61,255,154,.2);border-radius:var(--r-xl);
+  padding:1.75rem 2rem;margin-bottom:1.75rem;
+  display:flex;align-items:center;justify-content:space-between;gap:1.5rem;
+  flex-wrap:wrap;position:relative;overflow:hidden;
+}
+.winner-banner::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--c-green),transparent);
+}
+.winner-info{display:flex;align-items:center;gap:1.25rem}
+.winner-avatar-wrap{position:relative}
+.winner-avatar{width:64px;height:64px;border-radius:50%;border:2px solid var(--c-green);box-shadow:0 0 24px rgba(61,255,154,.3)}
+.winner-crown{position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:1.1rem}
+.winner-text h2{font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:.15rem}
+.winner-score-chip{
+  background:rgba(61,255,154,.1);border:1px solid rgba(61,255,154,.2);border-radius:100px;
+  padding:.4rem .9rem;display:inline-flex;align-items:center;gap:.4rem;
+  font-family:var(--ff-mono);font-size:.72rem;color:var(--c-green);margin-top:.4rem;
+}
+.score-race{flex:1;min-width:220px}
+.score-race-labels{display:flex;justify-content:space-between;margin-bottom:.5rem}
+.score-race-label{font-family:var(--ff-mono);font-size:.68rem;color:var(--c-muted)}
+.score-race-track{display:flex;gap:3px;height:8px;border-radius:4px;overflow:hidden;background:var(--c-border)}
+.score-seg{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.seg-1{background:linear-gradient(90deg,var(--c-blue),rgba(74,240,255,.7))}
+.seg-2{background:linear-gradient(90deg,rgba(255,74,240,.7),var(--c-pink))}
+.score-race-vals{display:flex;justify-content:space-between;margin-top:.4rem}
+.score-race-val{font-family:var(--ff-mono);font-size:.7rem;color:var(--c-text)}
+.banner-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.action-btn{
+  display:flex;align-items:center;gap:.4rem;background:transparent;
+  border:1px solid var(--c-border2);color:var(--c-muted);font-family:var(--ff-mono);
+  font-size:.72rem;padding:.5rem .9rem;border-radius:var(--r-sm);cursor:pointer;
+  transition:all .2s;white-space:nowrap;
+}
+.action-btn:hover{border-color:var(--c-blue);color:var(--c-blue)}
+
+/* Section Title */
+.section-title{
+  font-family:var(--ff-mono);font-size:.7rem;letter-spacing:2px;text-transform:uppercase;
+  color:var(--c-muted);margin-bottom:1rem;display:flex;align-items:center;gap:.75rem;
+}
+.section-title::after{content:'';flex:1;height:1px;background:var(--c-border)}
+
+/* Categories */
+.categories-section{margin-bottom:1.75rem}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.75rem}
+.cat-card{
+  background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-md);
+  padding:1rem;display:flex;flex-direction:column;gap:.5rem;transition:border-color .2s;
+}
+.cat-card:hover{border-color:var(--c-border2)}
+.cat-top{display:flex;align-items:center;justify-content:space-between}
+.cat-icon{font-size:1.1rem}
+.cat-label{font-family:var(--ff-mono);font-size:.62rem;color:var(--c-muted);letter-spacing:1px;text-transform:uppercase}
+.cat-winner{font-size:.82rem;font-weight:700;color:var(--c-text)}
+.cat-winner span{color:var(--c-green)}
+.cat-bar-wrap{height:3px;background:var(--c-border);border-radius:2px;overflow:hidden}
+.cat-bar{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--c-green),var(--c-blue))}
+
+/* Battle Grid */
+.battle-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.75rem}
+.profile-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-xl);overflow:hidden;transition:border-color .2s}
+.profile-card.p1-card{border-top:2px solid rgba(74,240,255,.3)}
+.profile-card.p2-card{border-top:2px solid rgba(255,74,240,.3)}
+.profile-card.winner-card{border-color:rgba(61,255,154,.3);box-shadow:0 0 40px rgba(61,255,154,.08)}
+
+/* Profile Header */
+.profile-header{padding:1.5rem 1.25rem 1.25rem;position:relative}
+.winner-ribbon{
+  position:absolute;top:.75rem;right:.75rem;
+  background:linear-gradient(135deg,var(--c-green),rgba(61,255,154,.7));
+  color:#000;font-family:var(--ff-mono);font-size:.62rem;font-weight:600;
+  padding:.25rem .6rem;border-radius:100px;letter-spacing:1px;
+}
+.profile-top{display:flex;align-items:flex-start;gap:1rem;margin-bottom:1rem}
+.avatar-ring{width:64px;height:64px;border-radius:50%;flex-shrink:0;padding:2px;background:var(--c-border2)}
+.avatar-ring.winner-ring{background:linear-gradient(135deg,var(--c-green),var(--c-blue))}
+.avatar-ring.p1-ring{background:linear-gradient(135deg,var(--c-blue),rgba(74,240,255,.3))}
+.avatar-ring.p2-ring{background:linear-gradient(135deg,var(--c-pink),rgba(255,74,240,.3))}
+.avatar-img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.profile-info{flex:1;min-width:0}
+.profile-name{font-size:1.05rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.profile-login{font-family:var(--ff-mono);font-size:.72rem;color:var(--c-muted);margin-top:.15rem;display:flex;align-items:center;gap:.3rem}
+.profile-bio{font-size:.78rem;color:#9090a8;line-height:1.5;margin-top:.5rem;display:-webkit-box;line-clamp:2;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.profile-meta{display:flex;flex-wrap:wrap;gap:.4rem .75rem;font-family:var(--ff-mono);font-size:.7rem;color:var(--c-muted)}
+.meta-item{display:flex;align-items:center;gap:.3rem;white-space:nowrap}
+.meta-item a{color:var(--c-muted);text-decoration:none;transition:color .2s}
+.meta-item a:hover{color:var(--c-blue)}
+.copy-btn{background:none;border:none;cursor:pointer;color:var(--c-dim);padding:.2rem;transition:color .2s;display:flex;align-items:center;font-size:.85rem}
+.copy-btn:hover{color:var(--c-blue)}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--c-border)}
+.stat-cell{padding:.85rem .5rem;text-align:center;border-right:1px solid var(--c-border);position:relative;transition:background .2s}
+.stat-cell:last-child{border-right:none}
+.stat-cell.is-winner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--c-green)}
+.stat-val{font-family:var(--ff-mono);font-size:1.1rem;font-weight:600;color:var(--c-text)}
+.stat-val.is-winner{color:var(--c-green)}
+.stat-lbl{font-size:.6rem;color:var(--c-muted);margin-top:.2rem;text-transform:uppercase;letter-spacing:.8px;font-family:var(--ff-mono)}
+
+/* Extended Stats */
+.ext-stats{padding:.75rem 1.25rem;border-top:1px solid var(--c-border);display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
+.ext-row{display:flex;align-items:center;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.ext-row:last-child{border-bottom:none}
+.ext-key{font-family:var(--ff-mono);font-size:.65rem;color:var(--c-muted)}
+.ext-val{font-family:var(--ff-mono);font-size:.7rem;color:var(--c-text);font-weight:500}
+
+/* Repos */
+.repos-section{padding:1rem 1.25rem;border-top:1px solid var(--c-border)}
+.repos-title{font-family:var(--ff-mono);font-size:.65rem;color:var(--c-muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:.75rem}
+.repo-list{display:flex;flex-direction:column;gap:.5rem}
+.repo-card{background:var(--c-surface2);border:1px solid var(--c-border);border-radius:var(--r-sm);padding:.65rem .8rem;transition:border-color .2s}
+.repo-card:hover{border-color:var(--c-border2)}
+.repo-top{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.3rem}
+.repo-name{font-family:var(--ff-mono);font-size:.75rem;color:var(--c-blue);font-weight:500;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.repo-name:hover{text-decoration:underline}
+.repo-lang-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.repo-desc{font-size:.7rem;color:var(--c-muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:1;line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.repo-stats{display:flex;gap:.75rem;margin-top:.35rem;font-family:var(--ff-mono);font-size:.62rem;color:var(--c-muted)}
+
+/* Language */
+.lang-section{padding:1rem 1.25rem;border-top:1px solid var(--c-border)}
+.lang-chart-container{max-height:130px;margin-bottom:.75rem}
+.lang-bars{display:flex;flex-direction:column;gap:.35rem}
+.lang-bar-row{display:flex;align-items:center;gap:.6rem}
+.lang-bar-name{font-family:var(--ff-mono);font-size:.65rem;color:var(--c-text);width:70px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lang-bar-track{flex:1;height:5px;background:var(--c-border);border-radius:3px;overflow:hidden}
+.lang-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.lang-bar-pct{font-family:var(--ff-mono);font-size:.6rem;color:var(--c-muted);width:30px;text-align:right}
+
+/* Power Score */
+.power-section{margin-bottom:1.75rem}
+.power-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.power-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-xl);padding:1.5rem;overflow:hidden}
+.power-card.p1-power{border-top:2px solid rgba(74,240,255,.3)}
+.power-card.p2-power{border-top:2px solid rgba(255,74,240,.3)}
+.power-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.power-user{display:flex;align-items:center;gap:.7rem}
+.power-avatar{width:36px;height:36px;border-radius:50%;border:1px solid var(--c-border2)}
+.power-name{font-size:.9rem;font-weight:700;color:#fff}
+.power-login-text{font-family:var(--ff-mono);font-size:.65rem;color:var(--c-muted)}
+.power-score-badge{font-family:var(--ff-mono);font-size:1.5rem;font-weight:600;color:var(--c-text);letter-spacing:-1px}
+.power-unit{font-size:.75rem;color:var(--c-muted);vertical-align:top;margin-top:.3rem;display:inline-block}
+.power-bars{display:flex;flex-direction:column;gap:.6rem}
+.power-bar-row{display:flex;align-items:center;gap:.75rem}
+.power-bar-icon{font-size:.85rem;width:20px;text-align:center}
+.power-bar-track{flex:1;height:6px;background:var(--c-border);border-radius:3px;overflow:hidden}
+.power-bar-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.power-bar-val{font-family:var(--ff-mono);font-size:.65rem;color:var(--c-muted);width:45px;text-align:right}
+
+
+/* Comparison Table */
+.comparison-section{margin-bottom:1.75rem}
+.cmp-table{width:100%;border-collapse:collapse;background:var(--c-surface);border-radius:var(--r-xl);overflow:hidden;border:1px solid var(--c-border)}
+.cmp-table th{padding:.75rem 1rem;font-family:var(--ff-mono);font-size:.65rem;color:var(--c-muted);letter-spacing:1.5px;text-transform:uppercase;background:var(--c-surface2);font-weight:400;text-align:left}
+.cmp-table th:nth-child(2),.cmp-table th:nth-child(3){text-align:center}
+.cmp-table td{padding:.7rem 1rem;font-family:var(--ff-mono);font-size:.78rem;border-top:1px solid var(--c-border);vertical-align:middle}
+.cmp-table td:nth-child(2),.cmp-table td:nth-child(3){text-align:center}
+.cmp-table tr:hover td{background:rgba(255,255,255,.015)}
+.cmp-metric{color:var(--c-muted)}
+.cmp-val{color:var(--c-text)}
+.cmp-val.cmp-win{color:var(--c-green);font-weight:600}
+.cmp-val.cmp-lose{color:var(--c-dim)}
+.cmp-icon{font-size:.9rem;margin-right:.4rem}
+
+/* Toast */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid var(--c-border2);color:var(--c-text);padding:.7rem 1.25rem;border-radius:100px;font-family:var(--ff-mono);font-size:.78rem;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:toastIn .3s ease;z-index:1000;white-space:nowrap}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .4s ease forwards}
+.fade-up-2{animation:fadeUp .4s ease .1s both}
+.fade-up-3{animation:fadeUp .4s ease .2s both}
+.fade-up-4{animation:fadeUp .4s ease .3s both}
+
+/* Responsive */
+@media(max-width:768px){
+  .input-row{grid-template-columns:1fr;gap:1rem}
+  .vs-circle{display:none}
+  .battle-grid,.power-grid{grid-template-columns:1fr}
+  .cat-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .winner-banner{flex-direction:column}
+  .score-race{width:100%}
+  .ext-stats{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .hero h1{letter-spacing:-1px}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+const LANG_COLORS = {
+  JavaScript:'#f7df1e',TypeScript:'#3178c6',Python:'#3572A5',Java:'#b07219',
+  Go:'#00add8',Rust:'#dea584',Ruby:'#701516',PHP:'#4f5d95',
+  'C++':'#f34b7d',C:'#555555',Swift:'#fa7343',Kotlin:'#7f52ff',
+  HTML:'#e34c26',CSS:'#563d7c',Shell:'#89e051',Dart:'#00b4ab',
+  Vue:'#41b883',Nix:'#7e7eff',Lua:'#000080',Scala:'#c22d40',
+  'C#':'#178600',R:'#198CE7',Elixir:'#6e4a7e',Haskell:'#5e5086',Other:'#555577'
+};
+
+function getLangColor(n){return LANG_COLORS[n]||LANG_COLORS.Other}
+
+function fmt(v){
+  if(v>=1000000) return `${(v/1000000).toFixed(1)}M`;
+  if(v>=1000) return `${(v/1000).toFixed(1)}k`;
+  return String(v);
+}
+
+function timeAgo(dateStr){
+  const days=Math.floor((new Date()-new Date(dateStr))/86400000);
+  if(days<1) return 'Today';if(days<7) return `${days}d ago`;
+  if(days<30) return `${Math.floor(days/7)}w ago`;
+  if(days<365) return `${Math.floor(days/30)}mo ago`;
+  return `${Math.floor(days/365)}y ago`;
+}
+
+async function fetchGitHub(username){
+  const [uRes,rRes]=await Promise.all([
+    fetch(`https://api.github.com/users/${username}`),
+    fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=stars`)
+  ]);
+  if(!uRes.ok) throw new Error(uRes.status===404?`User "${username}" not found`:`GitHub API error (${uRes.status})`);
+  const [user,repos]=await Promise.all([uRes.json(),rRes.json()]);
+  const all=Array.isArray(repos)?repos:[];
+  const stars=all.reduce((s,r)=>s+(r.stargazers_count||0),0);
+  const forks=all.reduce((s,r)=>s+(r.forks_count||0),0);
+  const langMap={};
+  all.forEach(r=>{if(r.language) langMap[r.language]=(langMap[r.language]||0)+1});
+  const sortedLangs=Object.entries(langMap).sort((a,b)=>b[1]-a[1]).slice(0,7);
+  const totalLang=sortedLangs.reduce((s,[,v])=>s+v,0);
+  const languages=sortedLangs.map(([k,v])=>({name:k,pct:Math.round(v/totalLang*100),count:v}));
+  const topRepos=all.filter(r=>!r.fork).sort((a,b)=>(b.stargazers_count||0)-(a.stargazers_count||0)).slice(0,4).map(r=>({
+    name:r.name,desc:r.description,stars:r.stargazers_count||0,
+    forks:r.forks_count||0,lang:r.language,url:r.html_url,updated:r.pushed_at
+  }));
+  const created=new Date(user.created_at);
+  const accountAge=((new Date()-created)/(1000*60*60*24*365)).toFixed(1);
+  const avgStars=all.length?Math.round(stars/all.length):0;
+  const avgForks=all.length?Math.round(forks/all.length):0;
+  const ratio=user.following?+(user.followers/user.following).toFixed(2):user.followers;
+  const score=user.followers*3+user.public_repos*2+stars*4+forks*2+parseFloat(accountAge)*5;
+  return {
+    login:user.login,name:user.name||user.login,avatar:user.avatar_url,bio:user.bio||'',
+    location:user.location||'',company:user.company||'',blog:user.blog||'',
+    followers:user.followers,following:user.following,repos:user.public_repos,
+    stars,forks,languages,topRepos,score,url:user.html_url,
+    joinYear:created.getFullYear(),accountAge,avgStars,avgForks,ratio
+  };
+}
+
+
+function LangChart({languages}){
+  const ref=useRef(null);const chartRef=useRef(null);
+  useEffect(()=>{
+    if(!ref.current||!languages?.length) return;
+    if(chartRef.current){chartRef.current.destroy();chartRef.current=null;}
+    chartRef.current=new Chart(ref.current,{
+      type:'doughnut',
+      data:{
+        labels:languages.map(l=>l.name),
+        datasets:[{data:languages.map(l=>l.pct),backgroundColor:languages.map(l=>getLangColor(l.name)),borderWidth:0,hoverOffset:6,borderRadius:4}]
+      },
+      options:{
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}%`},backgroundColor:'#0e0e1a',borderColor:'#2a2a40',borderWidth:1,titleColor:'#e4e4f0',bodyColor:'#9090a8',padding:8,titleFont:{family:'JetBrains Mono',size:11},bodyFont:{family:'JetBrains Mono',size:10}}
+        },
+        cutout:'68%',responsive:true,maintainAspectRatio:true,animation:{duration:600}
+      }
+    });
+    return()=>{if(chartRef.current){chartRef.current.destroy();chartRef.current=null;}}
+  },[languages]);
+  return <canvas ref={ref} style={{maxHeight:'120px'}}/>;
+}
+
+function CopyBtn({text,title}){
+  const [copied,setCopied]=useState(false);
+  return(
+    <button className="copy-btn" title={title||'Copy'} onClick={()=>{
+      navigator.clipboard.writeText(text).catch(()=>{});
+      setCopied(true);setTimeout(()=>setCopied(false),2000);
+    }}>{copied?'✓':'⎘'}</button>
+  );
+}
+
+function Toast({msg,onDone}){
+  useEffect(()=>{const t=setTimeout(onDone,2500);return()=>clearTimeout(t)},[onDone]);
+  return <div className="toast">{msg}</div>;
+}
+
+function ProfileCard({data,isWinner,oppData,side}){
+  const cmp=(a,b)=>a>b;
+  return(
+    <div className={`profile-card ${side}-card${isWinner?' winner-card':''} fade-up`}>
+      <div className="profile-header">
+        {isWinner&&<div className="winner-ribbon">👑 WINNER</div>}
+        <div className="profile-top">
+          <div className={`avatar-ring ${isWinner?'winner-ring':`${side}-ring`}`}>
+            <img className="avatar-img" src={data.avatar} alt={data.login}/>
+          </div>
+          <div className="profile-info">
+            <div className="profile-name">{data.name}</div>
+            <div className="profile-login">
+              <span style={{color:side==='p1'?'var(--c-blue)':'var(--c-pink)'}}>@</span>{data.login}
+              <CopyBtn text={data.url} title="Copy profile URL"/>
+            </div>
+            {data.bio&&<div className="profile-bio">{data.bio}</div>}
+          </div>
+        </div>
+        <div className="profile-meta">
+          {data.location&&<span className="meta-item">📍 {data.location}</span>}
+          {data.company&&<span className="meta-item">🏢 {data.company.replace('@','')}</span>}
+          {data.blog&&<span className="meta-item">🔗 <a href={data.blog.startsWith('http')?data.blog:`https://${data.blog}`} target="_blank" rel="noopener noreferrer">{data.blog.replace(/^https?:\/\//,'').slice(0,22)}</a></span>}
+          <span className="meta-item">📅 {data.joinYear} · {data.accountAge}y</span>
+        </div>
+      </div>
+
+      <div className="stats-grid">
+        {[{val:data.repos,label:'Repos',win:oppData&&cmp(data.repos,oppData.repos)},
+          {val:data.stars,label:'Stars',win:oppData&&cmp(data.stars,oppData.stars)},
+          {val:data.followers,label:'Followers',win:oppData&&cmp(data.followers,oppData.followers)},
+          {val:data.forks,label:'Forks',win:oppData&&cmp(data.forks,oppData.forks)}
+        ].map(({val,label,win})=>(
+          <div key={label} className={`stat-cell${win?' is-winner':''}`}>
+            <div className={`stat-val${win?' is-winner':''}`}>{fmt(val)}</div>
+            <div className="stat-lbl">{label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="ext-stats">
+        {[['Following',fmt(data.following)],['F/F Ratio',`${data.ratio}:1`],['Avg ⭐/repo',fmt(data.avgStars)],['Avg 🍴/repo',fmt(data.avgForks)]].map(([k,v])=>(
+          <div key={k} className="ext-row"><span className="ext-key">{k}</span><span className="ext-val">{v}</span></div>
+        ))}
+      </div>
+
+      {data.topRepos?.length>0&&(
+        <div className="repos-section">
+          <div className="repos-title">⭐ Top Repositories</div>
+          <div className="repo-list">
+            {data.topRepos.slice(0,3).map(r=>(
+              <div key={r.name} className="repo-card">
+                <div className="repo-top">
+                  <a href={r.url} target="_blank" rel="noopener noreferrer" className="repo-name">{r.name}</a>
+                  {r.lang&&<div className="repo-lang-dot" style={{background:getLangColor(r.lang)}}/>}
+                </div>
+                {r.desc&&<div className="repo-desc">{r.desc}</div>}
+                <div className="repo-stats">
+                  <span>⭐ {fmt(r.stars)}</span>
+                  <span>🍴 {fmt(r.forks)}</span>
+                  {r.lang&&<span>{r.lang}</span>}
+                  <span>{timeAgo(r.updated)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {data.languages?.length>0&&(
+        <div className="lang-section">
+          <div className="repos-title">🧬 Languages</div>
+          {data.languages.length>=3&&<div className="lang-chart-container"><LangChart languages={data.languages}/></div>}
+          <div className="lang-bars">
+            {data.languages.slice(0,5).map(l=>(
+              <div key={l.name} className="lang-bar-row">
+                <div className="lang-bar-name">{l.name}</div>
+                <div className="lang-bar-track"><div className="lang-bar-fill" style={{width:`${l.pct}%`,background:getLangColor(l.name)}}/></div>
+                <div className="lang-bar-pct">{l.pct}%</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PowerCard({data,oppData,side}){
+  const mx=(key)=>Math.max(data[key],oppData[key])||1;
+  const p=(val,m)=>Math.round(val/m*100);
+  const bars=[
+    {icon:'⭐',val:data.stars,max:mx('stars'),color:'#ffe55c'},
+    {icon:'👥',val:data.followers,max:mx('followers'),color:'var(--c-blue)'},
+    {icon:'📦',val:data.repos,max:mx('repos'),color:'var(--c-green)'},
+    {icon:'🍴',val:data.forks,max:mx('forks'),color:'var(--c-orange)'},
+    {icon:'📅',val:parseFloat(data.accountAge),max:Math.max(parseFloat(data.accountAge),parseFloat(oppData.accountAge))||1,color:'var(--c-pink)'},
+  ];
+  return(
+    <div className={`power-card ${side}-power`}>
+      <div className="power-header">
+        <div className="power-user">
+          <img className="power-avatar" src={data.avatar} alt={data.login}/>
+          <div>
+            <div className="power-name">{data.name}</div>
+            <div className="power-login-text">@{data.login}</div>
+          </div>
+        </div>
+        <div className="power-score-badge">{fmt(Math.round(data.score))}<span className="power-unit">pts</span></div>
+      </div>
+      <div className="power-bars">
+        {bars.map((b,i)=>(
+          <div key={i} className="power-bar-row">
+            <span className="power-bar-icon">{b.icon}</span>
+            <div className="power-bar-track"><div className="power-bar-fill" style={{width:`${p(b.val,b.max)}%`,background:b.color}}/></div>
+            <span className="power-bar-val">{fmt(b.val)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function App(){
+  const [u1,setU1]=useState('');const [u2,setU2]=useState('');
+  const [loading,setLoading]=useState(false);const [error,setError]=useState('');
+
+  const [toast,setToast]=useState('');
+  const showToast=useCallback(m=>setToast(m),[]);
+  const [result, setResult] = useState(null);
+
+  const battle=async()=>{
+    if(!u1.trim()||!u2.trim()){setError('Please enter both GitHub usernames');return;}
+    if(u1.trim()===u2.trim()){setError('Enter two different usernames');return;}
+    setLoading(true);setError('');setResult(null);
+    try{
+      const [p1,p2]=await Promise.all([fetchGitHub(u1.trim()),fetchGitHub(u2.trim())]);
+      setResult({p1,p2,winner:p1.score>=p2.score?'p1':'p2'});
+    }catch(e){setError(e.message);}
+    setLoading(false);
+  };
+
+  const share=()=>{
+    if(!result) return;
+    const {p1,p2,winner}=result;const w=winner==='p1'?p1:p2;const l=winner==='p1'?p2:p1;
+    const text=`⚔️ GitHub Battle: @${p1.login} vs @${p2.login}\n🏆 Winner: @${w.login} (${fmt(Math.round(w.score))} pts)\n⭐ Stars: ${fmt(p1.stars)} vs ${fmt(p2.stars)}\n👥 Followers: ${fmt(p1.followers)} vs ${fmt(p2.followers)}`;
+    if(navigator.share) navigator.share({title:'GitHub Battle',text});
+    else navigator.clipboard.writeText(text).then(()=>showToast('📋 Copied to clipboard!'));
+  };
+
+  const pct=(a,b)=>{const t=a+b;return t?Math.round(a/t*100):50};
+
+  return(
+    <div className="arena">
+      {toast&&<Toast msg={toast} onDone={()=>setToast('')}/>}
+
+      <div className="hero">
+        <div className="hero-eyebrow"><span/> Live GitHub Stats</div>
+        <h1>GitHub Battle</h1>
+        <p className="hero-sub">Developer vs Developer · Who reigns supreme?</p>
+      </div>
+
+      <div className="input-section fade-up">
+        <div className="input-row">
+          <div className="input-group">
+            <label className="input-label"><span className="player-dot p1-dot"/>Fighter 1</label>
+            <input className="input-field" type="text" placeholder="e.g. torvalds" value={u1}
+              onChange={e=>setU1(e.target.value)} onKeyDown={e=>e.key==='Enter'&&battle()}/>
+          </div>
+          <div className="vs-circle">VS</div>
+          <div className="input-group">
+            <label className="input-label"><span className="player-dot p2-dot"/>Fighter 2</label>
+            <input className="input-field" type="text" placeholder="e.g. gaearon" value={u2}
+              onChange={e=>setU2(e.target.value)} onKeyDown={e=>e.key==='Enter'&&battle()}/>
+          </div>
+        </div>
+        {error&&<div className="error-box">⚠️ {error}</div>}
+        <button className="battle-btn" onClick={battle} disabled={loading}>
+          <span className="battle-btn-inner">{loading?<>⏳ Fetching data...</>:<>⚔️ Start Battle</>}</span>
+        </button>
+      </div>
+
+      {loading&&(
+        <div className="loading-arena">
+          <div className="loading-label">Analyzing GitHub profiles</div>
+          <div className="load-bars">{[0,1,2,3,4].map(i=><div key={i} className="load-bar"/>)}</div>
+        </div>
+      )}
+
+      {result&&!loading&&(()=>{
+        const {p1,p2,winner}=result;
+        const w=winner==='p1'?p1:p2;const l=winner==='p1'?p2:p1;
+        const categories=[
+          {icon:'👥',label:'Followers',p1v:p1.followers,p2v:p2.followers},
+          {icon:'📦',label:'Repos',p1v:p1.repos,p2v:p2.repos},
+          {icon:'⭐',label:'Stars',p1v:p1.stars,p2v:p2.stars},
+          {icon:'🍴',label:'Forks',p1v:p1.forks,p2v:p2.forks},
+          {icon:'📅',label:'Acct Age',p1v:parseFloat(p1.accountAge),p2v:parseFloat(p2.accountAge)},
+          {icon:'📊',label:'Avg Stars',p1v:p1.avgStars,p2v:p2.avgStars},
+        ];
+        const cmpRows=[
+          {icon:'⭐',label:'Total Stars',p1:fmt(p1.stars),p2:fmt(p2.stars),win:p1.stars>p2.stars?'p1':'p2'},
+          {icon:'👥',label:'Followers',p1:fmt(p1.followers),p2:fmt(p2.followers),win:p1.followers>p2.followers?'p1':'p2'},
+          {icon:'📦',label:'Public Repos',p1:fmt(p1.repos),p2:fmt(p2.repos),win:p1.repos>p2.repos?'p1':'p2'},
+          {icon:'🍴',label:'Total Forks',p1:fmt(p1.forks),p2:fmt(p2.forks),win:p1.forks>p2.forks?'p1':'p2'},
+          {icon:'💬',label:'Following',p1:fmt(p1.following),p2:fmt(p2.following),win:p1.following>p2.following?'p1':'p2'},
+          {icon:'📈',label:'Follow Ratio',p1:`${p1.ratio}:1`,p2:`${p2.ratio}:1`,win:p1.ratio>p2.ratio?'p1':'p2'},
+          {icon:'🌟',label:'Avg Stars/Repo',p1:fmt(p1.avgStars),p2:fmt(p2.avgStars),win:p1.avgStars>p2.avgStars?'p1':'p2'},
+          {icon:'📅',label:'Account Age',p1:`${p1.accountAge}y`,p2:`${p2.accountAge}y`,win:parseFloat(p1.accountAge)>parseFloat(p2.accountAge)?'p1':'p2'},
+          {icon:'🧬',label:'Top Language',p1:p1.languages[0]?.name||'—',p2:p2.languages[0]?.name||'—',win:null},
+          {icon:'🏆',label:'Power Score',p1:fmt(Math.round(p1.score)),p2:fmt(Math.round(p2.score)),win:winner},
+        ];
+        const p1Wins=categories.filter(c=>c.p1v>=c.p2v).length;
+        return(
+          <>
+            <div className="winner-banner fade-up">
+              <div className="winner-info">
+                <div className="winner-avatar-wrap">
+                  <img className="winner-avatar" src={w.avatar} alt={w.login}/>
+                  <div className="winner-crown">👑</div>
+                </div>
+                <div className="winner-text">
+                  <h2>{w.name} Wins!</h2>
+                  <p style={{fontFamily:'var(--ff-mono)',fontSize:'.72rem',color:'var(--c-muted)'}}>@{w.login} defeated @{l.login}</p>
+                  <div className="winner-score-chip">🏆 {fmt(Math.round(w.score))} pts · {winner==='p1'?p1Wins:categories.length-p1Wins}/{categories.length} categories</div>
+                </div>
+              </div>
+              <div className="score-race">
+                <div className="score-race-labels">
+                  <span className="score-race-label">{p1.login}</span>
+                  <span className="score-race-label">{p2.login}</span>
+                </div>
+                <div className="score-race-track">
+                  <div className="score-seg seg-1" style={{width:`${pct(p1.score,p2.score)}%`}}/>
+                  <div className="score-seg seg-2" style={{width:`${pct(p2.score,p1.score)}%`}}/>
+                </div>
+                <div className="score-race-vals">
+                  <span style={{fontFamily:'var(--ff-mono)',fontSize:'.7rem',color:winner==='p1'?'var(--c-green)':'var(--c-dim)'}}>{fmt(Math.round(p1.score))}</span>
+                  <span style={{fontFamily:'var(--ff-mono)',fontSize:'.7rem',color:winner==='p2'?'var(--c-green)':'var(--c-dim)'}}>{fmt(Math.round(p2.score))}</span>
+                </div>
+              </div>
+              <div className="banner-actions">
+                <button className="action-btn" onClick={share}>📤 Share</button>
+                <button className="action-btn" onClick={()=>{navigator.clipboard.writeText(`${p1.url} vs ${p2.url}`).then(()=>showToast('🔗 Links copied!'))}}>🔗 Copy Links</button>
+              </div>
+            </div>
+
+            <div className="categories-section fade-up-2">
+              <div className="section-title">Category Breakdown</div>
+              <div className="cat-grid">
+                {categories.map(c=>{
+                  const cw=c.p1v>=c.p2v?p1:p2;
+                  const wp=pct(Math.max(c.p1v,c.p2v),(c.p1v+c.p2v)||1);
+                  return(
+                    <div key={c.label} className="cat-card">
+                      <div className="cat-top"><span className="cat-icon">{c.icon}</span><span className="cat-label">{c.label}</span></div>
+                      <div className="cat-winner">🏅 <span>@{cw.login}</span></div>
+                      <div className="cat-bar-wrap"><div className="cat-bar" style={{width:`${wp}%`}}/></div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="section-title fade-up-3">Profile Cards</div>
+            <div className="battle-grid fade-up-3">
+              <ProfileCard data={p1} isWinner={winner==='p1'} oppData={p2} side="p1"/>
+              <ProfileCard data={p2} isWinner={winner==='p2'} oppData={p1} side="p2"/>
+            </div>
+
+            <div className="power-section fade-up-4">
+              <div className="section-title">Developer Power Score</div>
+              <div className="power-grid">
+                <PowerCard data={p1} oppData={p2} side="p1"/>
+                <PowerCard data={p2} oppData={p1} side="p2"/>
+              </div>
+            </div>
+
+            <div className="comparison-section fade-up-4">
+              <div className="section-title">Detailed Comparison</div>
+              <table className="cmp-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th style={{color:'var(--c-blue)'}}>{p1.login}</th>
+                    <th style={{color:'var(--c-pink)'}}>{p2.login}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cmpRows.map(row=>(
+                    <tr key={row.label}>
+                      <td><span className="cmp-icon">{row.icon}</span><span className="cmp-metric">{row.label}</span></td>
+                      <td><span className={`cmp-val${row.win==='p1'?' cmp-win':row.win==='p2'?' cmp-lose':''}`}>{row.win==='p1'&&'✓ '}{row.p1}</span></td>
+                      <td><span className={`cmp-val${row.win==='p2'?' cmp-win':row.win==='p1'?' cmp-lose':''}`}>{row.win==='p2'&&'✓ '}{row.p2}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+          </>
+        );
+      })()}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
