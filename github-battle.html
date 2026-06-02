@@ -4,10 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GitHub Battle Arena</title>
-<script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/insights/script.js"></script>
 <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -206,7 +202,7 @@ body::before{
 .profile-info{flex:1;min-width:0}
 .profile-name{font-size:1.05rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .profile-login{font-family:var(--ff-mono);font-size:.72rem;color:var(--c-muted);margin-top:.15rem;display:flex;align-items:center;gap:.3rem}
-.profile-bio{font-size:.78rem;color:#9090a8;line-height:1.5;margin-top:.5rem;display:-webkit-box;line-clamp:2;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.profile-bio{font-size:.78rem;color:#9090a8;line-height:1.5;margin-top:.5rem;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .profile-meta{display:flex;flex-wrap:wrap;gap:.4rem .75rem;font-family:var(--ff-mono);font-size:.7rem;color:var(--c-muted)}
 .meta-item{display:flex;align-items:center;gap:.3rem;white-space:nowrap}
 .meta-item a{color:var(--c-muted);text-decoration:none;transition:color .2s}
@@ -274,6 +270,7 @@ body::before{
 .power-bar-val{font-family:var(--ff-mono);font-size:.65rem;color:var(--c-muted);width:45px;text-align:right}
 
 
+
 /* Comparison Table */
 .comparison-section{margin-bottom:1.75rem}
 .cmp-table{width:100%;border-collapse:collapse;background:var(--c-surface);border-radius:var(--r-xl);overflow:hidden;border:1px solid var(--c-border)}
@@ -299,6 +296,31 @@ body::before{
 .fade-up-3{animation:fadeUp .4s ease .2s both}
 .fade-up-4{animation:fadeUp .4s ease .3s both}
 
+/* ── Confetti Canvas ── */
+#confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+
+/* ── Battle History ── */
+.history-section{margin-bottom:1.75rem}
+.history-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem}
+.history-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-md);padding:1rem 1.1rem;display:flex;align-items:center;gap:.85rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.history-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--c-dim);transition:background .2s}
+.history-card:hover{border-color:var(--c-border2);transform:translateY(-1px)}
+.history-card:hover::before{background:var(--c-blue)}
+.history-avatars{display:flex;flex-shrink:0}
+.h-avatar{width:32px;height:32px;border-radius:50%;border:2px solid var(--c-bg);object-fit:cover}
+.h-avatar:last-child{margin-left:-10px}
+.history-info{flex:1;min-width:0}
+.history-users{font-family:var(--ff-mono);font-size:.72rem;color:var(--c-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.history-meta{font-family:var(--ff-mono);font-size:.62rem;color:var(--c-muted);margin-top:.2rem}
+.history-winner-chip{font-family:var(--ff-mono);font-size:.62rem;background:rgba(61,255,154,.08);border:1px solid rgba(61,255,154,.15);color:var(--c-green);padding:.2rem .55rem;border-radius:100px;flex-shrink:0;white-space:nowrap}
+.history-del{background:none;border:none;cursor:pointer;color:var(--c-dim);padding:.25rem;transition:color .2s;flex-shrink:0;font-size:.9rem}
+.history-del:hover{color:#ff6060}
+.history-empty{font-family:var(--ff-mono);font-size:.78rem;color:var(--c-dim);padding:1rem;text-align:center;background:var(--c-surface);border:1px dashed var(--c-border);border-radius:var(--r-md)}
+.history-clear-btn{background:none;border:1px solid var(--c-border);color:var(--c-muted);font-family:var(--ff-mono);font-size:.65rem;padding:.35rem .75rem;border-radius:var(--r-sm);cursor:pointer;transition:all .2s}
+.history-clear-btn:hover{border-color:#ff6060;color:#ff6060}
+.history-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+.history-header .section-title{margin-bottom:0;flex:1}
+
 /* Responsive */
 @media(max-width:768px){
   .input-row{grid-template-columns:1fr;gap:1rem}
@@ -316,9 +338,108 @@ body::before{
 </style>
 </head>
 <body>
+<canvas id="confetti-canvas"></canvas>
 <div id="root"></div>
 <script type="text/babel">
 const { useState, useEffect, useRef, useCallback } = React;
+
+/* ─── Confetti ─── */
+function launchConfetti(){
+  const canvas=document.getElementById('confetti-canvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const colors=['#4af0ff','#ff4af0','#3dff9a','#ffe55c','#ff9a3d','#ffffff'];
+  const particles=Array.from({length:160},()=>({
+    x:Math.random()*canvas.width,y:Math.random()*canvas.height-canvas.height,
+    r:Math.random()*6+3,d:Math.random()*160+60,
+    color:colors[Math.floor(Math.random()*colors.length)],
+    tilt:Math.random()*10-10,tiltAngle:0,tiltAngleInc:Math.random()*.07+.05,angle:0,
+  }));
+  let frame=0;const maxFrames=220;
+  function draw(){
+    if(frame>maxFrames){ctx.clearRect(0,0,canvas.width,canvas.height);return;}
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+      p.tiltAngle+=p.tiltAngleInc;
+      p.y+=(Math.cos(p.angle+p.d)+3+p.r/2)*1.2;
+      p.x+=Math.sin(p.angle)*1.5;p.angle+=0.01;p.tilt=Math.sin(p.tiltAngle)*15;
+      if(p.y>canvas.height+20){p.x=Math.random()*canvas.width;p.y=-20;}
+      ctx.beginPath();ctx.lineWidth=p.r/2;ctx.strokeStyle=p.color;
+      ctx.globalAlpha=Math.max(0,1-(frame/maxFrames));
+      ctx.moveTo(p.x+p.tilt+p.r/4,p.y);ctx.lineTo(p.x+p.tilt,p.y+p.tilt+p.r/4);ctx.stroke();
+    });
+    frame++;requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ─── Animated Counter ─── */
+function useCountUp(target,duration=1200,start=false){
+  const [val,setVal]=useState(0);const rafRef=useRef(null);
+  useEffect(()=>{
+    if(!start){setVal(0);return;}
+    let startTime=null;
+    const step=(ts)=>{
+      if(!startTime) startTime=ts;
+      const progress=Math.min((ts-startTime)/duration,1);
+      const eased=1-Math.pow(1-progress,3);
+      setVal(Math.round(eased*target));
+      if(progress<1) rafRef.current=requestAnimationFrame(step);
+    };
+    rafRef.current=requestAnimationFrame(step);
+    return()=>{if(rafRef.current) cancelAnimationFrame(rafRef.current);}
+  },[target,duration,start]);
+  return val;
+}
+
+function AnimatedStat({val,label,isWinner,animate}){
+  const count=useCountUp(val,1000,animate);
+  const display=val>=1000000?`${(count/1000000).toFixed(1)}M`:val>=1000?`${(count/1000).toFixed(1)}k`:String(count);
+  return(
+    <div className={`stat-cell${isWinner?' is-winner':''}`}>
+      <div className={`stat-val${isWinner?' is-winner':''}`}>{display}</div>
+      <div className="stat-lbl">{label}</div>
+    </div>
+  );
+}
+
+/* ─── localStorage History ─── */
+const LS_KEY='gh_battle_history';
+function loadHistory(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]');}catch{return [];}}
+function saveHistory(h){try{localStorage.setItem(LS_KEY,JSON.stringify(h));}catch{}}
+
+function HistoryPanel({history,onReplay,onDelete,onClear}){
+  if(history.length===0) return(
+    <div className="history-section fade-up">
+      <div className="section-title">Recent Battles</div>
+      <div className="history-empty">No battles yet — start your first one above ⚔️</div>
+    </div>
+  );
+  return(
+    <div className="history-section fade-up">
+      <div className="history-header">
+        <div className="section-title" style={{marginBottom:0}}>Recent Battles</div>
+        <button className="history-clear-btn" onClick={onClear}>Clear All</button>
+      </div>
+      <div className="history-grid">
+        {history.map(h=>(
+          <div key={h.id} className="history-card" onClick={()=>onReplay(h)}>
+            <div className="history-avatars">
+              <img className="h-avatar" src={h.p1.avatar} alt={h.p1.login}/>
+              <img className="h-avatar" src={h.p2.avatar} alt={h.p2.login}/>
+            </div>
+            <div className="history-info">
+              <div className="history-users">@{h.p1.login} vs @{h.p2.login}</div>
+              <div className="history-meta">🏆 {h.winner==='p1'?h.p1.login:h.p2.login} won · {h.date}</div>
+            </div>
+            <div className="history-winner-chip">Replay</div>
+            <button className="history-del" onClick={e=>{e.stopPropagation();onDelete(h.id);}} title="Remove">✕</button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const LANG_COLORS = {
   JavaScript:'#f7df1e',TypeScript:'#3178c6',Python:'#3572A5',Java:'#b07219',
@@ -379,7 +500,6 @@ async function fetchGitHub(username){
   };
 }
 
-
 function LangChart({languages}){
   const ref=useRef(null);const chartRef=useRef(null);
   useEffect(()=>{
@@ -419,7 +539,7 @@ function Toast({msg,onDone}){
   return <div className="toast">{msg}</div>;
 }
 
-function ProfileCard({data,isWinner,oppData,side}){
+function ProfileCard({data,isWinner,oppData,side,animate}){
   const cmp=(a,b)=>a>b;
   return(
     <div className={`profile-card ${side}-card${isWinner?' winner-card':''} fade-up`}>
@@ -452,10 +572,7 @@ function ProfileCard({data,isWinner,oppData,side}){
           {val:data.followers,label:'Followers',win:oppData&&cmp(data.followers,oppData.followers)},
           {val:data.forks,label:'Forks',win:oppData&&cmp(data.forks,oppData.forks)}
         ].map(({val,label,win})=>(
-          <div key={label} className={`stat-cell${win?' is-winner':''}`}>
-            <div className={`stat-val${win?' is-winner':''}`}>{fmt(val)}</div>
-            <div className="stat-lbl">{label}</div>
-          </div>
+          <AnimatedStat key={label} val={val} label={label} isWinner={win} animate={animate}/>
         ))}
       </div>
 
@@ -545,21 +662,30 @@ function PowerCard({data,oppData,side}){
 function App(){
   const [u1,setU1]=useState('');const [u2,setU2]=useState('');
   const [loading,setLoading]=useState(false);const [error,setError]=useState('');
-
-  const [toast,setToast]=useState('');
+  const [result,setResult]=useState(null);const [toast,setToast]=useState('');
+  const [animate,setAnimate]=useState(false);
+  const [history,setHistory]=useState(()=>loadHistory());
   const showToast=useCallback(m=>setToast(m),[]);
-  const [result, setResult] = useState(null);
 
-  const battle=async()=>{
-    if(!u1.trim()||!u2.trim()){setError('Please enter both GitHub usernames');return;}
-    if(u1.trim()===u2.trim()){setError('Enter two different usernames');return;}
-    setLoading(true);setError('');setResult(null);
+  const runBattle=async(user1,user2)=>{
+    if(!user1.trim()||!user2.trim()){setError('Please enter both GitHub usernames');return;}
+    if(user1.trim()===user2.trim()){setError('Enter two different usernames');return;}
+    setLoading(true);setError('');setResult(null);setAnimate(false);
     try{
-      const [p1,p2]=await Promise.all([fetchGitHub(u1.trim()),fetchGitHub(u2.trim())]);
-      setResult({p1,p2,winner:p1.score>=p2.score?'p1':'p2'});
+      const [p1,p2]=await Promise.all([fetchGitHub(user1.trim()),fetchGitHub(user2.trim())]);
+      const winner=p1.score>=p2.score?'p1':'p2';
+      setResult({p1,p2,winner});
+      setTimeout(()=>{setAnimate(true);launchConfetti();},150);
+      const entry={id:Date.now(),p1:{login:p1.login,avatar:p1.avatar},p2:{login:p2.login,avatar:p2.avatar},winner,date:new Date().toLocaleDateString()};
+      setHistory(prev=>{const n=[entry,...prev.filter(h=>!(h.p1.login===p1.login&&h.p2.login===p2.login))].slice(0,10);saveHistory(n);return n;});
     }catch(e){setError(e.message);}
     setLoading(false);
   };
+
+  const battle=()=>runBattle(u1,u2);
+  const replayBattle=(h)=>{setU1(h.p1.login);setU2(h.p2.login);runBattle(h.p1.login,h.p2.login);window.scrollTo({top:0,behavior:'smooth'});};
+  const deleteHistory=(id)=>{setHistory(prev=>{const n=prev.filter(h=>h.id!==id);saveHistory(n);return n;});};
+  const clearHistory=()=>{setHistory([]);saveHistory([]);};
 
   const share=()=>{
     if(!result) return;
@@ -631,6 +757,7 @@ function App(){
           {icon:'🧬',label:'Top Language',p1:p1.languages[0]?.name||'—',p2:p2.languages[0]?.name||'—',win:null},
           {icon:'🏆',label:'Power Score',p1:fmt(Math.round(p1.score)),p2:fmt(Math.round(p2.score)),win:winner},
         ];
+        
         const p1Wins=categories.filter(c=>c.p1v>=c.p2v).length;
         return(
           <>
@@ -685,8 +812,8 @@ function App(){
 
             <div className="section-title fade-up-3">Profile Cards</div>
             <div className="battle-grid fade-up-3">
-              <ProfileCard data={p1} isWinner={winner==='p1'} oppData={p2} side="p1"/>
-              <ProfileCard data={p2} isWinner={winner==='p2'} oppData={p1} side="p2"/>
+              <ProfileCard data={p1} isWinner={winner==='p1'} oppData={p2} side="p1" animate={animate}/>
+              <ProfileCard data={p2} isWinner={winner==='p2'} oppData={p1} side="p2" animate={animate}/>
             </div>
 
             <div className="power-section fade-up-4">
@@ -722,11 +849,16 @@ function App(){
           </>
         );
       })()}
+      
+      <HistoryPanel history={history} onReplay={replayBattle} onDelete={deleteHistory} onClear={clearHistory}/>
     </div>
+    
   );
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+
 </script>
+
 </body>
 </html>
