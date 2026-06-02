@@ -1,0 +1,23 @@
+{
+  "name": "github-battle",
+  "version": "1.0.0",
+  "description": "GitHub Battle Arena - Compare GitHub users and repositories",
+  "main": "github-battle.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnshumanSharma69-bit/github_battle.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AnshumanSharma69-bit/github_battle/issues"
+  },
+  "homepage": "https://github.com/AnshumanSharma69-bit/github_battle#readme",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
+}
