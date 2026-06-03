@@ -8,39 +8,60 @@ const GitHubStrategy = require("passport-github2").Strategy;
 const NodeCache = require("node-cache");
 const { Redis } = require("@upstash/redis");
 
+// ─────────────────────────────
+// APP INIT (MUST BE FIRST)
+// ─────────────────────────────
 const app = express();
 
-// ─── ENV CHECK ─────────────────────────────
-console.log("ENV CHECK:");
-console.log("CLIENT_ID =", process.env.GITHUB_CLIENT_ID);
-console.log("CLIENT_SECRET =", process.env.GITHUB_CLIENT_SECRET);
+app.set("trust proxy", 1); // important for OAuth + Render later
 
-// ─── MIDDLEWARE ────────────────────────────
+// ─────────────────────────────
+// MIDDLEWARE
+// ─────────────────────────────
 app.use(cors({
   origin: process.env.FRONTEND_URL || "*",
   credentials: true,
 }));
+
 app.use(express.json());
 
-// ─── CACHE ─────────────────────────────────
+// ─────────────────────────────
+// TEST ROUTE
+// ─────────────────────────────
+app.get("/", (req, res) => {
+  res.send("🚀 Server is working");
+});
+
+// ─────────────────────────────
+// CACHE
+// ─────────────────────────────
 const cache = new NodeCache({ stdTTL: 600 });
 
-// ─── UPSTASH REDIS ─────────────────────────
+// ─────────────────────────────
+// REDIS (UPSTASH REST)
+// ─────────────────────────────
 let redis = null;
 
-if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+if (
+  process.env.UPSTASH_REDIS_REST_URL &&
+  process.env.UPSTASH_REDIS_REST_TOKEN
+) {
   redis = Redis.fromEnv();
   console.log("✅ Upstash Redis connected");
 } else {
-  console.warn("⚠️ Redis not configured — using memory fallback");
+  console.log("⚠️ Redis disabled (memory mode)");
 }
 
-// ─── MEMORY FALLBACK ───────────────────────
+// ─────────────────────────────
+// MEMORY FALLBACK
+// ─────────────────────────────
 const memUsers = new Map();
 const memBattles = [];
 const LIMIT = 100;
 
-// ─── STORAGE HELPERS ───────────────────────
+// ─────────────────────────────
+// STORAGE HELPERS
+// ─────────────────────────────
 async function storeSaveUser(user) {
   if (redis) {
     await redis.hset("users", { [user.githubId]: JSON.stringify(user) });
@@ -57,35 +78,25 @@ async function storeGetUser(id) {
   return memUsers.get(id) || null;
 }
 
-async function storeSaveBattle(battle) {
-  if (redis) {
-    await redis.lpush("battles", JSON.stringify(battle));
-    await redis.ltrim("battles", 0, LIMIT - 1);
-  } else {
-    memBattles.unshift(battle);
-    if (memBattles.length > LIMIT) memBattles.length = LIMIT;
-  }
-}
-
-async function storeGetBattles(limit = 20) {
-  if (redis) {
-    const data = await redis.lrange("battles", 0, limit - 1);
-    return data.map(b => JSON.parse(b));
-  }
-  return memBattles.slice(0, limit);
-}
-
-// ─── SESSION ───────────────────────────────
+// ─────────────────────────────
+// SESSION (FIXED FOR AUTH)
+// ─────────────────────────────
 app.use(session({
   secret: process.env.SESSION_SECRET || "secret",
   resave: false,
   saveUninitialized: false,
+  cookie: {
+    secure: false,      // localhost fix
+    sameSite: "lax",    // OAuth fix
+  }
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ─── PASSPORT GITHUB AUTH ─────────────────
+// ─────────────────────────────
+// GITHUB STRATEGY
+// ─────────────────────────────
 passport.use(new GitHubStrategy({
   clientID: process.env.GITHUB_CLIENT_ID,
   clientSecret: process.env.GITHUB_CLIENT_SECRET,
@@ -114,7 +125,9 @@ passport.deserializeUser(async (id, done) => {
   done(null, user || null);
 });
 
-// ─── AUTH ROUTES ───────────────────────────
+// ─────────────────────────────
+// AUTH ROUTES
+// ─────────────────────────────
 app.get("/auth/github",
   passport.authenticate("github", { scope: ["read:user"] })
 );
@@ -122,15 +135,29 @@ app.get("/auth/github",
 app.get("/auth/github/callback",
   passport.authenticate("github", { failureRedirect: "/" }),
   (req, res) => {
-    res.redirect(process.env.FRONTEND_URL || "/");
+    res.redirect(process.env.FRONTEND_URL || "http://localhost:5500");
   }
 );
 
+// 🔥 FIXED: Player 1 endpoint
 app.get("/auth/me", (req, res) => {
-  res.json({ user: req.user || null });
+  if (req.user) {
+    return res.json({
+      loggedIn: true,
+      user: {
+        login: req.user.login,
+        name: req.user.name,
+        avatar: req.user.avatar,
+      }
+    });
+  }
+
+  res.json({ loggedIn: false, user: null });
 });
 
-// ─── SIMPLE API ────────────────────────────
+// ─────────────────────────────
+// HEALTH CHECK
+// ─────────────────────────────
 app.get("/api/health", async (req, res) => {
   let redisOk = false;
 
@@ -148,7 +175,9 @@ app.get("/api/health", async (req, res) => {
   });
 });
 
-// ─── START SERVER ──────────────────────────
+// ─────────────────────────────
+// START SERVER
+// ─────────────────────────────
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
