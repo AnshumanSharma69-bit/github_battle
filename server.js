@@ -339,7 +339,7 @@ async function bootstrap() {
   // ─── Start ───────────────────────────────────────────────────────────────────
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on https://github-fighter.vercel.app:${PORT}`);
     console.log(`🔐 OAuth: ${process.env.GITHUB_CLIENT_ID ? 'enabled' : 'disabled (set GITHUB_CLIENT_ID)'}`);
     console.log(`💾 Storage: ${usingRedis ? 'Redis' : 'in-memory (set REDIS_URL for persistence)'}`);
   });
