@@ -1,23 +1,27 @@
 {
-  "name": "github-battle",
-  "version": "1.0.0",
-  "description": "GitHub Battle Arena - Compare GitHub users and repositories",
-  "main": "github-battle.html",
+  "name": "github-battle-backend",
+  "version": "2.0.0",
+  "description": "Backend API for GitHub Battle Arena with OAuth",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/AnshumanSharma69-bit/github_battle.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/AnshumanSharma69-bit/github_battle/issues"
-  },
-  "homepage": "https://github.com/AnshumanSharma69-bit/github_battle#readme",
   "dependencies": {
-    "@vercel/analytics": "^2.0.1"
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "express-session": "^1.18.0",
+    "mongoose": "^8.5.1",
+    "node-cache": "^5.1.2",
+    "passport": "^0.7.0",
+    "passport-github2": "^0.1.12"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
