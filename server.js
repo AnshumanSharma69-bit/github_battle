@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
@@ -108,7 +109,7 @@ function buildSession() {
 const guestLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 60,
-  skip: (req) => req.isAuthenticated(),
+ skip: (req) => !!req.user,
   message: { error: 'Rate limit exceeded. Login with GitHub for 5000 requests/hour!' },
   standardHeaders: true,
   legacyHeaders: false,
