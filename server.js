@@ -81,7 +81,7 @@ async function storeGetBattles(limit = 20, filterLogin = null) {
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5500',
+  origin: process.env.FRONTEND_URL || 'https://github-fighter.vercel.app',
   credentials: true,
 }));
 app.use(express.json());
@@ -119,7 +119,7 @@ app.use('/api/', guestLimiter);
 passport.use(new GitHubStrategy({
   clientID:     process.env.GITHUB_CLIENT_ID,
   clientSecret: process.env.GITHUB_CLIENT_SECRET,
-  callbackURL:  process.env.GITHUB_CALLBACK_URL || 'http://localhost:3000/auth/github/callback',
+  callbackURL:  process.env.GITHUB_CALLBACK_URL || 'https://github-battle-1.onrender.com',
   scope: ['read:user'],
 },
 async (accessToken, refreshToken, profile, done) => {
