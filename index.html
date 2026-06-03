@@ -31,47 +31,6 @@ body::before{
 }
 #root{position:relative;z-index:1}
 .arena{max-width:1100px;margin:0 auto;padding:2.5rem 1.25rem 4rem}
-/* ── Navbar ── */
-.navbar{
-  position:sticky;top:0;z-index:100;
-  background:rgba(8,8,16,.85);backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--c-border);
-  padding:.75rem 1.25rem;display:flex;align-items:center;justify-content:space-between;
-}
-.nav-brand{font-weight:800;font-size:1rem;background:linear-gradient(135deg,var(--c-blue),var(--c-pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.5px}
-.nav-right{display:flex;align-items:center;gap:.75rem}
-.nav-user{display:flex;align-items:center;gap:.6rem}
-.nav-avatar{width:28px;height:28px;border-radius:50%;border:1px solid var(--c-border2)}
-.nav-login{font-family:var(--ff-mono);font-size:.72rem;color:var(--c-text)}
-.nav-badge{font-family:var(--ff-mono);font-size:.6rem;background:rgba(61,255,154,.08);border:1px solid rgba(61,255,154,.2);color:var(--c-green);padding:.2rem .55rem;border-radius:100px}
-.oauth-btn{
-  display:flex;align-items:center;gap:.5rem;
-  background:rgba(255,255,255,.04);border:1px solid var(--c-border2);
-  color:var(--c-text);font-family:var(--ff-mono);font-size:.72rem;
-  padding:.5rem .9rem;border-radius:var(--r-sm);cursor:pointer;transition:all .2s;
-  text-decoration:none;white-space:nowrap;
-}
-.oauth-btn:hover{border-color:var(--c-blue);color:var(--c-blue)}
-.oauth-btn.logout{color:var(--c-muted)}
-.oauth-btn.logout:hover{border-color:#ff6060;color:#ff6060}
-.rate-badge{
-  font-family:var(--ff-mono);font-size:.62rem;
-  background:rgba(74,240,255,.06);border:1px solid rgba(74,240,255,.15);
-  color:var(--c-muted);padding:.2rem .6rem;border-radius:100px;
-}
-.rate-badge.high{background:rgba(61,255,154,.06);border-color:rgba(61,255,154,.2);color:var(--c-green)}
-
-/* ── Autofill chip ── */
-.autofill-chip{
-  display:inline-flex;align-items:center;gap:.4rem;
-  font-family:var(--ff-mono);font-size:.65rem;color:var(--c-muted);
-  background:rgba(74,240,255,.05);border:1px solid rgba(74,240,255,.1);
-  border-radius:100px;padding:.25rem .65rem;cursor:pointer;transition:all .2s;margin-bottom:.5rem;
-}
-.autofill-chip:hover{color:var(--c-blue);border-color:rgba(74,240,255,.3)}
-.autofill-chip img{width:16px;height:16px;border-radius:50%}
-
-
 
 /* Hero */
 .hero{text-align:center;margin-bottom:3rem;padding-top:1rem}
@@ -507,40 +466,38 @@ function timeAgo(dateStr){
   return `${Math.floor(days/365)}y ago`;
 }
 
-// ─── Backend API config ───────────────────────────────────────────────────────
-// Change this to your deployed backend URL (e.g. https://github-battle-api.railway.app)
-const API_BASE = window.location.hostname === 'localhost'
-  ? 'http://localhost:3000'
-  : 'https://github-battle-1.onrender.com'; // <-- replace this after deploying backend
-
 async function fetchGitHub(username){
-  const res = await fetch(`${API_BASE}/api/user/${username}`, { credentials: 'include' });
-  const data = await res.json();
-  if(!res.ok) throw new Error(data.error || `GitHub API error (${res.status})`);
-  return data;
-}
-
-async function runBattleAPI(username1, username2){
-  const res = await fetch(`${API_BASE}/api/battle`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ username1, username2 }),
-  });
-  const data = await res.json();
-  if(!res.ok) throw new Error(data.error || 'Battle failed');
-  return data; // { p1, p2, winner }
-}
-
-async function fetchAuthUser(){
-  try{
-    const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
-    return await res.json();
-  }catch{ return { loggedIn: false, user: null }; }
-}
-
-async function logoutUser(){
-  await fetch(`${API_BASE}/auth/logout`, { method: 'POST', credentials: 'include' });
+  const [uRes,rRes]=await Promise.all([
+    fetch(`https://api.github.com/users/${username}`),
+    fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=stars`)
+  ]);
+  if(!uRes.ok) throw new Error(uRes.status===404?`User "${username}" not found`:`GitHub API error (${uRes.status})`);
+  const [user,repos]=await Promise.all([uRes.json(),rRes.json()]);
+  const all=Array.isArray(repos)?repos:[];
+  const stars=all.reduce((s,r)=>s+(r.stargazers_count||0),0);
+  const forks=all.reduce((s,r)=>s+(r.forks_count||0),0);
+  const langMap={};
+  all.forEach(r=>{if(r.language) langMap[r.language]=(langMap[r.language]||0)+1});
+  const sortedLangs=Object.entries(langMap).sort((a,b)=>b[1]-a[1]).slice(0,7);
+  const totalLang=sortedLangs.reduce((s,[,v])=>s+v,0);
+  const languages=sortedLangs.map(([k,v])=>({name:k,pct:Math.round(v/totalLang*100),count:v}));
+  const topRepos=all.filter(r=>!r.fork).sort((a,b)=>(b.stargazers_count||0)-(a.stargazers_count||0)).slice(0,4).map(r=>({
+    name:r.name,desc:r.description,stars:r.stargazers_count||0,
+    forks:r.forks_count||0,lang:r.language,url:r.html_url,updated:r.pushed_at
+  }));
+  const created=new Date(user.created_at);
+  const accountAge=((new Date()-created)/(1000*60*60*24*365)).toFixed(1);
+  const avgStars=all.length?Math.round(stars/all.length):0;
+  const avgForks=all.length?Math.round(forks/all.length):0;
+  const ratio=user.following?+(user.followers/user.following).toFixed(2):user.followers;
+  const score=user.followers*3+user.public_repos*2+stars*4+forks*2+parseFloat(accountAge)*5;
+  return {
+    login:user.login,name:user.name||user.login,avatar:user.avatar_url,bio:user.bio||'',
+    location:user.location||'',company:user.company||'',blog:user.blog||'',
+    followers:user.followers,following:user.following,repos:user.public_repos,
+    stars,forks,languages,topRepos,score,url:user.html_url,
+    joinYear:created.getFullYear(),accountAge,avgStars,avgForks,ratio
+  };
 }
 
 function LangChart({languages}){
@@ -708,39 +665,15 @@ function App(){
   const [result,setResult]=useState(null);const [toast,setToast]=useState('');
   const [animate,setAnimate]=useState(false);
   const [history,setHistory]=useState(()=>loadHistory());
-  const [authUser,setAuthUser]=useState(null); // logged-in GitHub user
-  const [authLoading,setAuthLoading]=useState(true);
   const showToast=useCallback(m=>setToast(m),[]);
-
-  // Check if user is logged in on mount + handle OAuth redirect
-  useEffect(()=>{
-    const params=new URLSearchParams(window.location.search);
-    if(params.get('auth')==='success'){
-      showToast('✅ Logged in with GitHub!');
-      window.history.replaceState({},'',window.location.pathname);
-    }
-    if(params.get('auth')==='failed') showToast('❌ GitHub login failed');
-    fetchAuthUser().then(res=>{
-      setAuthUser(res.loggedIn ? res.user : null);
-      // Auto-fill Fighter 1 with logged-in user
-      if(res.loggedIn && !u1) setU1(res.user.login);
-      setAuthLoading(false);
-    });
-  },[]);
-
-  const handleLogin=()=>{ window.location.href=`${API_BASE}/auth/github`; };
-  const handleLogout=async()=>{
-    await logoutUser();
-    setAuthUser(null);
-    showToast('👋 Logged out');
-  };
 
   const runBattle=async(user1,user2)=>{
     if(!user1.trim()||!user2.trim()){setError('Please enter both GitHub usernames');return;}
     if(user1.trim()===user2.trim()){setError('Enter two different usernames');return;}
     setLoading(true);setError('');setResult(null);setAnimate(false);
     try{
-      const {p1,p2,winner}=await runBattleAPI(user1.trim(),user2.trim());
+      const [p1,p2]=await Promise.all([fetchGitHub(user1.trim()),fetchGitHub(user2.trim())]);
+      const winner=p1.score>=p2.score?'p1':'p2';
       setResult({p1,p2,winner});
       setTimeout(()=>{setAnimate(true);launchConfetti();},150);
       const entry={id:Date.now(),p1:{login:p1.login,avatar:p1.avatar},p2:{login:p2.login,avatar:p2.avatar},winner,date:new Date().toLocaleDateString()};
@@ -765,35 +698,9 @@ function App(){
   const pct=(a,b)=>{const t=a+b;return t?Math.round(a/t*100):50};
 
   return(
-    <div>
+    <div className="arena">
       {toast&&<Toast msg={toast} onDone={()=>setToast('')}/>}
 
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="nav-brand">⚔️ GitHub Battle</div>
-        <div className="nav-right">
-          {authUser
-            ? <>
-                <span className={`rate-badge high`}>⚡ 5000 req/hr</span>
-                <div className="nav-user">
-                  <img className="nav-avatar" src={authUser.avatar} alt={authUser.login}/>
-                  <span className="nav-login">@{authUser.login}</span>
-                  <span className="nav-badge">OAuth</span>
-                </div>
-                <button className="oauth-btn logout" onClick={handleLogout}>Logout</button>
-              </>
-            : <>
-                <span className="rate-badge">⚡ 60 req/hr</span>
-                <button className="oauth-btn" onClick={handleLogin}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-                  Login with GitHub
-                </button>
-              </>
-          }
-        </div>
-      </nav>
-
-      <div className="arena">
       <div className="hero">
         <div className="hero-eyebrow"><span/> Live GitHub Stats</div>
         <h1>GitHub Battle</h1>
@@ -801,14 +708,6 @@ function App(){
       </div>
 
       <div className="input-section fade-up">
-        {authUser&&(
-          <div style={{marginBottom:'.75rem'}}>
-            <button className="autofill-chip" onClick={()=>setU1(authUser.login)}>
-              <img src={authUser.avatar} alt={authUser.login}/>
-              Use my profile (@{authUser.login})
-            </button>
-          </div>
-        )}
         <div className="input-row">
           <div className="input-group">
             <label className="input-label"><span className="player-dot p1-dot"/>Fighter 1</label>
@@ -950,7 +849,6 @@ function App(){
         );
       })()}
       <HistoryPanel history={history} onReplay={replayBattle} onDelete={deleteHistory} onClear={clearHistory}/>
-    </div>
     </div>
   );
 }
