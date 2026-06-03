@@ -6,7 +6,7 @@ const session = require('express-session');
 const passport = require('passport');
 const GitHubStrategy = require('passport-github2').Strategy;
 const { createClient } = require('redis');
-const RedisStore = require('connect-redis').default;
+const { RedisStore } = require('connect-redis');
 const dotenv = require('dotenv');
 
 dotenv.config();
