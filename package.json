@@ -8,6 +8,7 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
+    "connect-redis": "^9.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
@@ -16,7 +17,8 @@
     "mongoose": "^8.5.1",
     "node-cache": "^5.1.2",
     "passport": "^0.7.0",
-    "passport-github2": "^0.1.12"
+    "passport-github2": "^0.1.12",
+    "redis": "^6.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
