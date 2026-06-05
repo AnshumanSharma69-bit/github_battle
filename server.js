@@ -16,9 +16,10 @@ const {
   GITHUB_CLIENT_ID,
   GITHUB_CLIENT_SECRET,
   SESSION_SECRET = 'change-me-in-production',
-  FRONTEND_URL = 'http://localhost:5500',  // your frontend origin
-  BACKEND_URL  = `http://localhost:${PORT}`,
+  FRONTEND_URL = 'https://github-fighter.vercel.app',  // your frontend origin
+  BACKEND_URL  = `https://github-battle-1.onrender.com`,
 } = process.env;
+app.set('trust proxy', 1);
 
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(cors({
@@ -301,7 +302,7 @@ app.post('/api/battle', async (req, res) => {
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`\n⚔️  GitHub Battle backend running on http://localhost:${PORT}`);
+  console.log(`\n⚔️  GitHub Battle backend running on https://github-battle-1.onrender.com`);
   console.log(`   Frontend origin: ${FRONTEND_URL}`);
   console.log(`   OAuth configured: ${!!GITHUB_CLIENT_ID}\n`);
 });
