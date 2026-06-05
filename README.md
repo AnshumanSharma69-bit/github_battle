@@ -94,3 +94,4 @@ Logged-in users automatically use their OAuth token (5000 req/hr). Anonymous use
 5. Update the GitHub OAuth App callback URL to match `BACKEND_URL`
 
 The frontend's `API_BASE` already has `https://github-battle-1.onrender.com` as the production URL — update that constant in `index.html` to match your deploy URL.
+.env
