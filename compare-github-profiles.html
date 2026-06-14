@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Compare GitHub Profiles - GitHub Fighter</title>
+
+<meta name="description"
+content="Compare GitHub profiles side by side. Analyze repositories, followers, stars, forks, and developer activity.">
+
+
+<meta name="keywords" content="GitHub Fighter, GitHub Battle, GitHub Profile Comparison, GitHub Stats, GitHub Analytics, Compare GitHub Users">
+
+<meta name="robots" content="index, follow">
+
+<link rel="canonical" href="https://github-fighter.vercel.app/">
+
+<meta property="og:title" content="GitHub Fighter ⚔️">
+<meta property="og:description" content="Compare GitHub profiles head-to-head and see who dominates.">
+<meta property="og:url" content="https://github-fighter.vercel.app/">
+<meta property="og:type" content="website">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="GitHub Fighter ⚔️">
+<meta name="twitter:description" content="Compare GitHub profiles, repositories, stars, and activity.">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+/* ── Reset ── */
+*{box-sizing:border-box;margin:0;padding:0}
+
+/* ── MK Color System ── */
+:root{
+  --bg:#000000;
+  --surface:#080808;
+  --card:#0F0F0F;
+  --card2:#141414;
+  --border:#1A1A1A;
+  --border2:#222222;
+
+  /* MK Gold / Dragon Fire */
+  --gold:#F5A623;
+  --gold-light:#FFD000;
+  --gold-dark:#C47D0A;
+  --gold-glow:rgba(245,166,35,.5);
+  --gold-dim:rgba(245,166,35,.08);
+  --gold-border:rgba(245,166,35,.3);
+
+  /* Blood Red */
+  --red:#CC0000;
+  --red-light:#FF1A1A;
+  --red-dark:#8B0000;
+  --red-glow:rgba(204,0,0,.5);
+  --red-dim:rgba(204,0,0,.08);
+  --red-border:rgba(204,0,0,.35);
+
+  /* Ice Blue (Sub-Zero) */
+  --ice:#00C8FF;
+  --ice-light:#80E8FF;
+  --ice-glow:rgba(0,200,255,.4);
+  --ice-dim:rgba(0,200,255,.08);
+  --ice-border:rgba(0,200,255,.25);
+
+  /* Winner */
+  --win:#00FF87;
+  --win-glow:rgba(0,255,135,.4);
+
+  --text:#FFFFFF;
+  --text2:#888888;
+  --text3:#3A3A3A;
+
+  --r:8px;--r-lg:12px;--r-xl:16px;--r-full:9999px;
+  --tr:all .18s cubic-bezier(.4,0,.2,1);
+  --shadow:0 4px 20px rgba(0,0,0,.95);
+  --shadow-lg:0 16px 60px rgba(0,0,0,.98);
+}
+
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{
+  font-family:'Inter',sans-serif;background:var(--bg);
+  color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1.5;
+}
+a{color:inherit;text-decoration:none}
+button{font-family:'Inter',sans-serif;cursor:pointer;border:none;outline:none}
+input{font-family:'Inter',sans-serif;outline:none}
+
+/* ── MK Background ── */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% -10%,rgba(245,166,35,.07) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 40% at 0% 60%,rgba(204,0,0,.06) 0%,transparent 55%),
+    radial-gradient(ellipse 50% 40% at 100% 60%,rgba(0,200,255,.06) 0%,transparent 55%);
+}
+
+/* Scanline texture overlay */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+}
+
+#app{position:relative;z-index:1}
+
+/* ── Navbar ── */
+.nav{
+  position:sticky;top:0;z-index:200;
+  background:rgba(0,0,0,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(245,166,35,.15);
+  padding:0 24px;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.nav::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  opacity:.4;
+}
+.nav-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;color:var(--text);letter-spacing:1px;text-transform:uppercase}
+.nav-brand-icon{
+  width:30px;height:30px;border-radius:6px;
+  background:linear-gradient(135deg,var(--gold-dark),var(--gold));
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+  box-shadow:0 0 16px var(--gold-glow);
+}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-badge{
+  font-size:11px;font-weight:600;padding:3px 9px;border-radius:var(--r-full);
+  background:rgba(0,255,135,.06);border:1px solid rgba(0,255,135,.2);color:var(--win);
+  letter-spacing:.5px;text-transform:uppercase;
+}
+.nav-badge.dim{background:rgba(58,58,58,.15);border-color:rgba(58,58,58,.3);color:var(--text3)}
+.nav-user{display:flex;align-items:center;gap:8px}
+.nav-avatar{width:26px;height:26px;border-radius:4px;border:1.5px solid var(--gold-border)}
+.nav-username{font-size:13px;font-weight:600;color:var(--gold);letter-spacing:.5px}
+.btn-ghost{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.03);border:1px solid var(--border2);
+  color:var(--text2);font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;
+  padding:6px 12px;border-radius:var(--r);transition:var(--tr);
+}
+.btn-ghost:hover{background:rgba(245,166,35,.08);border-color:var(--gold-border);color:var(--gold)}
+.btn-ghost svg{flex-shrink:0}
+.btn-ghost.danger:hover{border-color:var(--red-border);color:var(--red-light);background:var(--red-dim)}
+
+/* ── Main ── */
+.main{max-width:1080px;margin:0 auto;padding:52px 24px 80px}
+
+/* ── Hero ── */
+.hero{text-align:center;margin-bottom:52px}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:11px;font-weight:700;color:var(--gold);
+  border:1px solid var(--gold-border);border-radius:var(--r-full);
+  padding:5px 16px;margin-bottom:24px;background:var(--gold-dim);
+  letter-spacing:2px;text-transform:uppercase;
+}
+.hero-tag-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold-glow);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+
+.hero h1{
+  font-size:clamp(40px,8vw,72px);font-weight:800;
+  letter-spacing:-2px;line-height:.95;margin-bottom:6px;
+  color:var(--text);text-transform:uppercase;
+}
+.hero h1 em{
+  font-style:normal;display:block;font-size:clamp(28px,5vw,48px);
+  background:linear-gradient(180deg,var(--gold-light) 0%,var(--gold) 50%,var(--gold-dark) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-shadow:none;letter-spacing:4px;
+  filter:drop-shadow(0 0 20px var(--gold-glow));
+}
+.hero-divider{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  margin:14px 0 20px;
+}
+.hero-divider-line{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+.hero-divider-line.r{background:linear-gradient(90deg,var(--gold),transparent)}
+.hero-divider-icon{font-size:16px;filter:drop-shadow(0 0 8px var(--gold-glow))}
+.hero-sub{font-size:14px;color:var(--text2);max-width:420px;margin:0 auto;letter-spacing:.3px}
+
+/* ── Input Card ── */
+.input-card{
+  background:var(--surface);
+  border:1px solid var(--border2);border-top:1px solid var(--gold-border);
+  border-radius:var(--r-xl);padding:24px;margin-bottom:24px;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 40px rgba(245,166,35,.04);
+}
+.input-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent 5%,var(--gold) 30%,var(--gold-light) 50%,var(--gold) 70%,transparent 95%);
+}
+.input-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.input-card-title{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:2px;text-transform:uppercase}
+.autofill-btn{
+  display:flex;align-items:center;gap:6px;
+  background:var(--ice-dim);border:1px solid var(--ice-border);
+  color:var(--ice);font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+  padding:4px 10px;border-radius:var(--r-full);transition:var(--tr);
+}
+.autofill-btn:hover{background:rgba(0,200,255,.14)}
+.autofill-btn img{width:14px;height:14px;border-radius:3px}
+
+.fighters-row{display:grid;grid-template-columns:1fr 56px 1fr;gap:12px;align-items:end;margin-bottom:16px}
+.input-group{display:flex;flex-direction:column;gap:6px}
+.input-label{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;
+  display:flex;align-items:center;gap:6px;
+}
+.input-label.p1-label{color:var(--red-light)}
+.input-label.p2-label{color:var(--ice)}
+.label-pip{width:6px;height:6px;border-radius:2px}
+.pip-1{background:var(--red);box-shadow:0 0 8px var(--red-glow)}
+.pip-2{background:var(--ice);box-shadow:0 0 8px var(--ice-glow)}
+.input-wrap{position:relative}
+.input-field{
+  width:100%;background:#060606;
+  color:var(--text);font-size:14px;font-weight:500;
+  padding:11px 14px 11px 38px;border-radius:var(--r);transition:var(--tr);
+}
+.input-field.f1{border:1px solid rgba(204,0,0,.3)}
+.input-field.f1:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-dim),0 0 20px rgba(204,0,0,.1)}
+.input-field.f2{border:1px solid rgba(0,200,255,.25)}
+.input-field.f2:focus{border-color:var(--ice);box-shadow:0 0 0 3px var(--ice-dim),0 0 20px rgba(0,200,255,.08)}
+.input-field::placeholder{color:var(--text3);font-weight:400}
+.input-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;font-size:13px;font-weight:700}
+
+.vs-divider{
+  width:56px;height:46px;border-radius:var(--r);
+  background:linear-gradient(180deg,#1A0000 0%,#0D0000 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:13px;font-weight:900;color:var(--gold-light);letter-spacing:2px;
+  border:1px solid var(--gold-border);
+  box-shadow:0 0 20px var(--gold-glow),inset 0 1px 0 rgba(255,255,255,.05);
+  align-self:flex-end;text-transform:uppercase;
+  position:relative;overflow:hidden;
+}
+.vs-divider::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 50%,rgba(245,166,35,.15) 0%,transparent 70%);
+}
+
+.error-msg{
+  display:flex;align-items:center;gap:8px;
+  background:var(--red-dim);border:1px solid var(--red-border);
+  color:#FF8080;font-size:13px;padding:10px 14px;border-radius:var(--r);margin-bottom:14px;
+  letter-spacing:.3px;
+}
+
+.btn-battle{
+  width:100%;position:relative;overflow:hidden;
+  background:linear-gradient(180deg,#1A0000 0%,#0D0000 50%,#000000 100%);
+  border:1px solid var(--red-border);border-top-color:rgba(204,0,0,.6);
+  color:var(--gold-light);font-size:13px;font-weight:800;letter-spacing:3px;text-transform:uppercase;
+  padding:14px;border-radius:var(--r);transition:var(--tr);
+  box-shadow:0 0 30px rgba(204,0,0,.15),inset 0 1px 0 rgba(255,255,255,.04);
+}
+.btn-battle::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--red-light),var(--gold),var(--red-light),transparent);
+}
+.btn-battle::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(204,0,0,.2) 0%,transparent 70%);
+  opacity:0;transition:opacity .2s;
+}
+.btn-battle:hover:not(:disabled)::after{opacity:1}
+.btn-battle:hover:not(:disabled){
+  transform:translateY(-1px);
+  box-shadow:0 0 50px rgba(204,0,0,.4),0 0 100px rgba(245,166,35,.1),inset 0 1px 0 rgba(255,255,255,.06);
+  border-color:var(--red);color:var(--gold-light);
+}
+.btn-battle:active:not(:disabled){transform:translateY(1px)}
+.btn-battle:disabled{opacity:.35;cursor:not-allowed}
+.btn-battle-inner{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:10px}
+
+/* ── Skeletons ── */
+.loading-wrap{padding:32px 0}
+.skeleton-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.skeleton-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:20px;display:flex;flex-direction:column;gap:14px}
+.skeleton-row{display:flex;gap:12px;align-items:center}
+.sk{background:linear-gradient(90deg,var(--border) 25%,var(--border2) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:4px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.sk-circle{border-radius:50%!important}
+.sk-w20{width:20%;height:11px}.sk-w30{width:30%;height:11px}.sk-w40{width:40%;height:11px}
+.sk-w50{width:50%;height:11px}.sk-w60{width:60%;height:11px}.sk-w80{width:80%;height:11px}
+.sk-avatar{width:52px;height:52px;flex-shrink:0}
+.sk-stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)}
+.sk-stat{background:var(--surface);padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:6px}
+
+/* ── Section Label ── */
+.section-label{
+  font-size:10px;font-weight:700;color:var(--gold);
+  text-transform:uppercase;letter-spacing:2.5px;
+  margin-bottom:16px;display:flex;align-items:center;gap:12px;
+}
+.section-label::before{content:'◆';font-size:7px;color:var(--gold);opacity:.7}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--gold-border),transparent)}
+
+/* ── Winner Banner ── */
+.winner-banner{
+  background:linear-gradient(135deg,rgba(0,255,135,.04),rgba(245,166,35,.03));
+  border:1px solid rgba(0,255,135,.2);border-radius:var(--r-xl);
+  padding:20px 24px;margin-bottom:24px;
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 40px rgba(0,255,135,.05);
+}
+.winner-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--win),transparent)}
+.winner-left{display:flex;align-items:center;gap:14px;flex-shrink:0}
+.winner-avatar-wrap{position:relative}
+.winner-avatar{width:52px;height:52px;border-radius:6px;border:2px solid var(--win);box-shadow:0 0 24px var(--win-glow)}
+.winner-crown{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:14px;filter:drop-shadow(0 0 6px var(--gold-glow))}
+.winner-meta h3{font-size:17px;font-weight:800;color:var(--text);margin-bottom:2px;text-transform:uppercase;letter-spacing:.5px}
+.winner-meta p{font-size:12px;color:var(--text3);letter-spacing:.5px}
+.winner-pill{
+  display:inline-flex;align-items:center;gap:5px;margin-top:6px;
+  background:rgba(0,255,135,.06);border:1px solid rgba(0,255,135,.2);
+  border-radius:var(--r-full);padding:3px 10px;font-size:10px;font-weight:700;
+  color:var(--win);letter-spacing:1px;text-transform:uppercase;
+}
+.score-bar-wrap{flex:1;min-width:180px}
+.score-bar-labels{display:flex;justify-content:space-between;margin-bottom:6px}
+.score-bar-label{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:.5px;text-transform:uppercase}
+.score-bar-track{height:6px;background:var(--border2);border-radius:var(--r-full);overflow:hidden;display:flex;gap:2px}
+.score-seg{height:100%;border-radius:var(--r-full);transition:width .8s cubic-bezier(.4,0,.2,1)}
+.seg-1{background:linear-gradient(90deg,var(--red-dark),var(--red-light))}
+.seg-2{background:linear-gradient(90deg,#0088CC,var(--ice))}
+.score-bar-vals{display:flex;justify-content:space-between;margin-top:6px}
+.score-bar-val{font-size:11px;font-weight:700;letter-spacing:.5px}
+.banner-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-sm{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,.03);border:1px solid var(--border2);
+  color:var(--text2);font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;
+  padding:6px 12px;border-radius:var(--r);transition:var(--tr);white-space:nowrap;
+}
+.btn-sm:hover{background:var(--gold-dim);border-color:var(--gold-border);color:var(--gold)}
+
+/* ── Categories ── */
+.cat-section{margin-bottom:24px}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px}
+.cat-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:12px;display:flex;flex-direction:column;gap:8px;transition:var(--tr);
+}
+.cat-card:hover{border-color:var(--gold-border);transform:translateY(-2px);box-shadow:0 4px 20px rgba(245,166,35,.08)}
+.cat-header{display:flex;align-items:center;justify-content:space-between}
+.cat-label-text{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+.cat-winner-text{font-size:12px;font-weight:700;color:var(--text);letter-spacing:.3px}
+.cat-winner-text span{color:var(--gold)}
+.cat-track{height:2px;background:var(--border2);border-radius:var(--r-full);overflow:hidden}
+.cat-fill{height:100%;border-radius:var(--r-full);background:linear-gradient(90deg,var(--red),var(--gold),var(--ice))}
+
+/* ── Battle Cards ── */
+.battle-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.profile-card{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--r-xl);overflow:hidden;transition:all .2s;
+  position:relative;
+}
+.profile-card.p1{border-top:2px solid var(--red)}
+.profile-card.p1::before{content:'';position:absolute;top:0;left:0;right:0;height:80px;background:linear-gradient(180deg,rgba(204,0,0,.06) 0%,transparent 100%);pointer-events:none}
+.profile-card.p1:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(204,0,0,.2)}
+.profile-card.p2{border-top:2px solid var(--ice)}
+.profile-card.p2::before{content:'';position:absolute;top:0;left:0;right:0;height:80px;background:linear-gradient(180deg,rgba(0,200,255,.05) 0%,transparent 100%);pointer-events:none}
+.profile-card.p2:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(0,200,255,.15)}
+.profile-card.winner{box-shadow:0 0 40px rgba(0,255,135,.08)}
+.prof-header{padding:20px 20px 16px;position:relative;z-index:1}
+.winner-badge{
+  position:absolute;top:14px;right:14px;
+  background:var(--win);color:#000;font-size:9px;font-weight:800;
+  padding:3px 8px;border-radius:var(--r-full);letter-spacing:1.5px;text-transform:uppercase;
+  box-shadow:0 0 12px var(--win-glow);
+}
+.prof-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.avatar-wrap{flex-shrink:0;width:52px;height:52px;border-radius:6px;padding:2px}
+.avatar-wrap.p1{background:linear-gradient(135deg,var(--red),var(--red-dark))}
+.avatar-wrap.p2{background:linear-gradient(135deg,#0088CC,var(--ice))}
+.avatar-wrap.winner-ring{background:linear-gradient(135deg,var(--win),var(--gold))}
+.avatar-wrap img{width:100%;height:100%;border-radius:4px;object-fit:cover;display:block}
+.prof-info{flex:1;min-width:0}
+.prof-name{font-size:15px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;letter-spacing:.5px}
+.prof-login{font-size:12px;color:var(--text3);margin-top:2px;display:flex;align-items:center;gap:4px}
+.prof-bio{font-size:12px;color:var(--text2);line-height:1.5;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.prof-meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:var(--text3)}
+.prof-meta-item{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.prof-meta-item a{color:var(--text3);transition:color .15s}
+.prof-meta-item a:hover{color:var(--gold)}
+.copy-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:2px;transition:color .15s;display:inline-flex;font-size:12px;margin-left:2px}
+.copy-btn:hover{color:var(--gold)}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border)}
+.stat-cell{padding:12px 6px;text-align:center;border-right:1px solid var(--border);position:relative}
+.stat-cell:last-child{border-right:none}
+.stat-cell.win::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--win))}
+.stat-num{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.5px}
+.stat-num.win{color:var(--win)}
+.stat-lbl{font-size:9px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+
+.ext-grid{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border);padding:12px 16px;gap:2px}
+.ext-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.025)}
+.ext-row:last-child{border-bottom:none}
+.ext-k{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.ext-v{font-size:11px;color:var(--text);font-weight:700}
+
+.repos-wrap{padding:12px 16px;border-top:1px solid var(--border)}
+.sub-label{font-size:9px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.repo-list{display:flex;flex-direction:column;gap:5px}
+.repo-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;transition:border-color .15s}
+.repo-item:hover{border-color:var(--gold-border)}
+.repo-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:3px}
+.repo-name{font-size:12px;font-weight:700;color:var(--ice);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:color .15s;letter-spacing:.3px}
+.repo-name:hover{color:var(--ice-light)}
+.repo-lang-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.repo-desc{font-size:11px;color:var(--text3);line-height:1.4;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:4px}
+.repo-stats{display:flex;gap:10px;font-size:10px;color:var(--text3);font-weight:500}
+
+.lang-wrap{padding:12px 16px;border-top:1px solid var(--border)}
+.lang-chart-wrap{height:110px;margin-bottom:10px}
+.lang-bars{display:flex;flex-direction:column;gap:5px}
+.lang-row{display:flex;align-items:center;gap:8px}
+.lang-name{font-size:11px;color:var(--text);width:68px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;letter-spacing:.3px}
+.lang-track{flex:1;height:4px;background:var(--border2);border-radius:var(--r-full);overflow:hidden}
+.lang-fill{height:100%;border-radius:var(--r-full);transition:width .5s ease}
+.lang-pct{font-size:10px;color:var(--text3);width:28px;text-align:right;font-weight:600}
+
+/* ── Power Score ── */
+.power-section{margin-bottom:24px}
+.power-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.power-card{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--r-xl);padding:20px;position:relative;overflow:hidden;
+}
+.power-card.p1{border-top:2px solid var(--red)}
+.power-card.p1::before{content:'';position:absolute;top:0;left:0;right:0;height:60px;background:linear-gradient(180deg,rgba(204,0,0,.05) 0%,transparent 100%);pointer-events:none}
+.power-card.p2{border-top:2px solid var(--ice)}
+.power-card.p2::before{content:'';position:absolute;top:0;left:0;right:0;height:60px;background:linear-gradient(180deg,rgba(0,200,255,.04) 0%,transparent 100%);pointer-events:none}
+.power-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:relative}
+.power-user{display:flex;align-items:center;gap:8px}
+.power-avatar{width:32px;height:32px;border-radius:5px;border:1px solid var(--border2)}
+.power-name{font-size:13px;font-weight:800;color:var(--text);text-transform:uppercase;letter-spacing:.5px}
+.power-handle{font-size:10px;color:var(--text3);letter-spacing:.5px}
+.power-score{font-size:24px;font-weight:800;color:var(--gold);letter-spacing:-1px;text-shadow:0 0 20px var(--gold-glow)}
+.power-score span{font-size:11px;color:var(--text3);font-weight:500;letter-spacing:.5px}
+.power-bars{display:flex;flex-direction:column;gap:8px;position:relative}
+.power-bar-row{display:flex;align-items:center;gap:8px}
+.power-icon{font-size:12px;width:18px;text-align:center;flex-shrink:0}
+.power-track{flex:1;height:5px;background:var(--border2);border-radius:var(--r-full);overflow:hidden}
+.power-fill{height:100%;border-radius:var(--r-full);transition:width .9s ease}
+.power-val{font-size:10px;color:var(--text2);width:42px;text-align:right;font-weight:600}
+
+/* ── Comparison Table ── */
+.cmp-section{margin-bottom:24px}
+.cmp-table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:var(--r-xl);overflow:hidden;border:1px solid var(--border2)}
+.cmp-table th{
+  padding:10px 16px;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.5px;background:var(--card2);
+  border-bottom:1px solid var(--border2);text-align:left;
+}
+.cmp-table th:nth-child(2),.cmp-table th:nth-child(3){text-align:center}
+.cmp-table td{padding:9px 16px;font-size:13px;border-top:1px solid var(--border);vertical-align:middle}
+.cmp-table td:nth-child(2),.cmp-table td:nth-child(3){text-align:center}
+.cmp-table tr:hover td{background:rgba(255,255,255,.012)}
+.cmp-metric-label{color:var(--text3);font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.cmp-val{color:var(--text);font-weight:500;font-size:13px}
+.cmp-val.win{color:var(--win);font-weight:700}
+.cmp-val.lose{color:var(--text3);font-weight:400}
+
+/* ── History ── */
+.history-section{margin-bottom:24px}
+.history-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.history-header .section-label{margin-bottom:0;flex:1}
+.btn-clear{background:none;border:1px solid var(--border2);color:var(--text3);font-size:10px;font-weight:700;padding:4px 10px;border-radius:var(--r);transition:var(--tr);text-transform:uppercase;letter-spacing:.8px}
+.btn-clear:hover{border-color:var(--red-border);color:var(--red-light)}
+.history-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.history-item{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;
+  transition:var(--tr);position:relative;overflow:hidden;
+}
+.history-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:transparent;transition:background .15s}
+.history-item:hover{border-color:var(--gold-border);transform:translateY(-1px);box-shadow:0 4px 20px rgba(245,166,35,.08)}
+.history-item:hover::before{background:var(--gold)}
+.h-avatars{display:flex;flex-shrink:0}
+.h-av{width:28px;height:28px;border-radius:4px;border:2px solid var(--bg);object-fit:cover}
+.h-av:last-child{margin-left:-8px}
+.h-info{flex:1;min-width:0}
+.h-users{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.3px}
+.h-meta{font-size:11px;color:var(--text3);margin-top:1px}
+.h-replay{
+  font-size:10px;font-weight:700;color:var(--gold);
+  background:var(--gold-dim);border:1px solid var(--gold-border);
+  padding:3px 8px;border-radius:var(--r-full);flex-shrink:0;white-space:nowrap;letter-spacing:.8px;text-transform:uppercase;
+}
+.h-del{background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;transition:color .15s;flex-shrink:0;font-size:12px}
+.h-del:hover{color:var(--red-light)}
+.history-empty{background:var(--surface);border:1px dashed var(--border2);border-radius:var(--r-xl);padding:32px;text-align:center}
+.history-empty p{font-size:13px;color:var(--text3);margin-top:8px;text-transform:uppercase;letter-spacing:1px}
+.empty-icon{font-size:28px;opacity:.3}
+.intel-panel{
+    max-width:1200px;
+    margin:60px auto;
+}
+
+.section-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:20px;
+    color:var(--gold);
+    font-size:.8rem;
+    letter-spacing:3px;
+    font-weight:700;
+}
+
+.section-dot{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--gold);
+}
+
+.intel-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:16px;
+}
+
+.intel-card{
+    background:rgba(255,255,255,.02);
+    border:1px solid rgba(255,179,0,.15);
+    border-radius:18px;
+    padding:24px;
+    transition:.25s;
+}
+
+.intel-card:hover{
+    transform:translateY(-2px);
+}
+
+.intel-card h3{
+    color:#fff;
+    margin-bottom:12px;
+}
+
+.intel-card p{
+    color:#9ca3af;
+    line-height:1.7;
+}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--card);border:1px solid var(--gold-border);color:var(--gold);
+  padding:10px 20px;border-radius:var(--r);font-size:12px;font-weight:700;
+  box-shadow:var(--shadow-lg),0 0 20px var(--gold-glow);
+  animation:toastIn .25s ease;z-index:9999;white-space:nowrap;
+  letter-spacing:1px;text-transform:uppercase;
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:9998}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fadeUp .3s ease both}
+.fade-1{animation-delay:.05s}.fade-2{animation-delay:.1s}.fade-3{animation-delay:.15s}.fade-4{animation-delay:.2s}
+
+@media(max-width:720px){
+  .main{padding:32px 16px 64px}
+  .fighters-row{grid-template-columns:1fr;gap:10px}
+  .vs-divider{display:none}
+  .battle-grid,.power-grid{grid-template-columns:1fr}
+  .cat-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+  .winner-banner{flex-direction:column;align-items:flex-start}
+  .score-bar-wrap{width:100%}
+  .ext-grid{grid-template-columns:1fr}
+  .history-grid{grid-template-columns:1fr}
+}
+@media(max-width:400px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .hero h1{letter-spacing:-1px}
+}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div id="app">
+
+  <!-- Navbar -->
+  <nav class="nav">
+    <div class="nav-brand">
+      <div class="nav-brand-icon">⚔️</div>
+      GitHub Battle
+    </div>
+    <div class="nav-right" id="nav-right">
+      <span class="nav-badge dim" id="rate-badge">⚡ 60 req/hr</span>
+      <button class="btn-ghost" id="login-btn" onclick="handleLogin()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        Login with GitHub
+      </button>
+      <div class="nav-user" id="nav-user" style="display:none">
+        <img class="nav-avatar" id="nav-avatar" src="" alt="">
+        <span class="nav-username" id="nav-username"></span>
+        <button class="btn-ghost danger" onclick="handleLogout()">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- Hero -->
+  <!-- Hero -->
+<div class="hero">
+  <div class="hero-tag">
+    <span class="hero-tag-dot"></span>
+    Live Combat Stats
+  </div>
+
+  <h1 style="margin-bottom:0;">
+    Compare GitHub Profile
+  </h1>
+
+  <div class="hero-divider">
+    <div class="hero-divider-line"></div>
+    <div class="hero-divider-icon">⚔️</div>
+    <div class="hero-divider-line r"></div>
+  </div>
+
+  <p class="hero-sub">
+Compare GitHub profiles side by side with GitHub Fighter. Analyze repositories, stars, followers, forks, programming languages, and developer activity in real time. Battle two GitHub users and discover who has the stronger open-source profile. </p>
+</div>
+    <!-- Input Card -->
+    <div class="input-card fade">
+      <div class="input-card-header">
+        <span class="input-card-title">Choose your fighters</span>
+        <button class="autofill-btn" id="autofill-btn" style="display:none" onclick="autofill()">
+          <img id="autofill-img" src="" alt=""> Use my profile
+        </button>
+      </div>
+      <div class="fighters-row">
+        <div class="input-group">
+          <label class="input-label p1-label"><span class="label-pip pip-1"></span>Fighter 1</label>
+          <div class="input-wrap">
+            <span class="input-icon">@</span>
+            <input class="input-field f1" id="u1" type="text" placeholder="e.g. torvalds" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="vs-divider">VS</div>
+        <div class="input-group">
+          <label class="input-label p2-label"><span class="label-pip pip-2"></span>Fighter 2</label>
+          <div class="input-wrap">
+            <span class="input-icon">@</span>
+            <input class="input-field f2" id="u2" type="text" placeholder="e.g. gaearon" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+      </div>
+      <div id="error-msg" class="error-msg" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+        <span id="error-text"></span>
+      </div>
+      <button class="btn-battle" id="battle-btn" onclick="startBattle()">
+        <span class="btn-battle-inner">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          Finish Him
+        </span>
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading-wrap" class="loading-wrap" style="display:none">
+      <div class="skeleton-grid">
+        <div class="skeleton-card">
+          <div class="skeleton-row"><div class="sk sk-circle sk-avatar"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div class="sk sk-w60"></div><div class="sk sk-w40"></div></div></div>
+          <div class="sk sk-w80"></div><div class="sk sk-w50"></div>
+          <div class="sk-stat-row"><div class="sk-stat"><div class="sk sk-w30"></div><div class="sk sk-w20"></div></div><div class="sk-stat"><div class="sk sk-w30"></div><div class="sk sk-w20"></div></div><div class="sk-stat"><div class="sk sk-w30"></div><div class="sk sk-w20"></div></div><div class="sk-stat"><div class="sk sk-w30"></div><div class="sk sk-w20"></div></div></div>
+        </div>
+        <div class="skeleton-card">
+          <div class="skeleton-row"><div class="sk sk-circle sk-avatar"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px"><div class="sk sk-w60"></div><div class="sk sk-w40"></div></div></div>
+          <div class="sk sk-w70"></div><div class="sk sk-w50"></div>
+          <div class="sk-stat-row"><div class="sk-stat"><div class="sk sk-w30"></div><div class="sk sk-w20"></div></div><div class="sk-stat"><div class="sk sk-w30"></div><div class="sk sk-w20"></div></div><div class="sk-stat"><div class="sk sk-w30"></div><div class="sk sk-w20"></div></div><div class="sk-stat"><div class="sk sk-w30"></div><div class="sk sk-w20"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="results" style="display:none"></div>
+
+    <!-- History -->
+    <div id="history-wrap"></div>
+   <section class="intel-panel">
+  <div class="section-title">
+    <span class="section-dot"></span>
+    BATTLE INTEL
+  </div>
+
+  <div class="intel-grid">
+    <div class="intel-card">
+      <h3>⚔️ Compare GitHub Profiles</h3>
+      <p>
+        Compare repositories, stars, followers, forks, programming languages,
+        and developer activity side by side using live GitHub data.
+      </p>
+    </div>
+
+    <div class="intel-card">
+      <h3>🏆 Battle Statistics</h3>
+      <p>
+        Analyze profile strength, repository popularity, contribution history,
+        and open-source impact in a head-to-head showdown.
+      </p>
+    </div>
+
+    <div class="intel-card">
+      <h3>🚀 Real-Time Analysis</h3>
+      <p>
+        Enter two GitHub usernames and instantly discover who dominates the
+        battlefield based on public GitHub statistics.
+      </p>
+    </div>
+  </div>
+</section>
+    
+
+  </main>
+</div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────────────────────
+const API_BASE = window.location.hostname === 'localhost'
+  ? 'https://github-fighter.vercel.app'
+  : 'https://github-battle-1.onrender.com';
+
+// ── State ────────────────────────────────────────────────────────────────────
+let authUser = null;
+let battleResult = null;
+let charts = {};
+
+// ── Lang Colors ──────────────────────────────────────────────────────────────
+const LC = {JavaScript:'#f7df1e',TypeScript:'#3178c6',Python:'#3572A5',Java:'#b07219',Go:'#00add8',Rust:'#dea584',Ruby:'#701516',PHP:'#4f5d95','C++':'#f34b7d',C:'#555555',Swift:'#fa7343',Kotlin:'#7f52ff',HTML:'#e34c26',CSS:'#563d7c',Shell:'#89e051',Dart:'#00b4ab',Vue:'#41b883','C#':'#178600',Other:'#4B5563'};
+const lc = n => LC[n] || LC.Other;
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+const fmt = v => v>=1e6?`${(v/1e6).toFixed(1)}M`:v>=1000?`${(v/1000).toFixed(1)}k`:String(v);
+const timeAgo = s => {const d=Math.floor((Date.now()-new Date(s))/864e5);return d<1?'Today':d<7?`${d}d ago`:d<30?`${Math.floor(d/7)}w ago`:d<365?`${Math.floor(d/30)}mo ago`:`${Math.floor(d/365)}y ago`};
+const pct = (a,b) => {const t=a+b; return t?Math.round(a/t*100):50};
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  let t = document.querySelector('.toast');
+  if(t) t.remove();
+  clearTimeout(toastTimer);
+  t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  toastTimer = setTimeout(() => t && t.remove(), 2500);
+}
+
+// ── Confetti ──────────────────────────────────────────────────────────────────
+function launchConfetti() {
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  canvas.width = innerWidth; canvas.height = innerHeight;
+  const colors = ['#CC0000','#F5A623','#FFD000','#00C8FF','#00FF87','#FFFFFF'];
+  const parts = Array.from({length:130},()=>({
+    x:Math.random()*canvas.width, y:Math.random()*canvas.height-canvas.height,
+    r:Math.random()*5+2, d:Math.random()*130+50,
+    c:colors[Math.floor(Math.random()*colors.length)],
+    tilt:Math.random()*10-10, ta:0, ti:Math.random()*.07+.05, a:0
+  }));
+  let frame=0;
+  (function draw(){
+    if(frame>200){ctx.clearRect(0,0,canvas.width,canvas.height);return;}
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    parts.forEach(p=>{
+      p.ta+=p.ti; p.y+=(Math.cos(p.a+p.d)+3+p.r/2)*1.1;
+      p.x+=Math.sin(p.a)*1.2; p.a+=.01; p.tilt=Math.sin(p.ta)*14;
+      if(p.y>canvas.height+10){p.x=Math.random()*canvas.width;p.y=-10;}
+      ctx.beginPath(); ctx.lineWidth=p.r/2; ctx.strokeStyle=p.c;
+      ctx.globalAlpha=Math.max(0,1-(frame/200));
+      ctx.moveTo(p.x+p.tilt+p.r/4,p.y); ctx.lineTo(p.x+p.tilt,p.y+p.tilt+p.r/4); ctx.stroke();
+    });
+    frame++; requestAnimationFrame(draw);
+  })();
+}
+
+// ── Animated Counter ─────────────────────────────────────────────────────────
+function animateCount(el, target, duration=900) {
+  let start = null;
+  const step = ts => {
+    if(!start) start = ts;
+    const p = Math.min((ts-start)/duration, 1);
+    const e = 1-Math.pow(1-p,3);
+    const v = Math.round(e*target);
+    el.textContent = target>=1e6?`${(v/1e6).toFixed(1)}M`:target>=1000?`${(v/1000).toFixed(1)}k`:String(v);
+    if(p<1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+// ── localStorage History ──────────────────────────────────────────────────────
+const LS = 'gh_battle_v4';
+function loadHistory(){try{return JSON.parse(localStorage.getItem(LS)||'[]');}catch{return[];}}
+function saveHistory(h){try{localStorage.setItem(LS,JSON.stringify(h));}catch{}}
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+async function fetchAuthUser(){
+  try{const r=await fetch(`${API_BASE}/auth/me`,{credentials:'include'});return await r.json();}
+  catch{return{loggedIn:false,user:null};}
+}
+function handleLogin(){ window.location.href=`${API_BASE}/auth/github`; }
+async function handleLogout(){
+  await fetch(`${API_BASE}/auth/logout`,{method:'POST',credentials:'include'}).catch(()=>{});
+  authUser=null; updateNavAuth(null); showToast('👋 Logged out');
+}
+function autofill(){ if(authUser) document.getElementById('u1').value=authUser.login; }
+
+function updateNavAuth(user) {
+  const loginBtn = document.getElementById('login-btn');
+  const navUser = document.getElementById('nav-user');
+  const rateBadge = document.getElementById('rate-badge');
+  const autofillBtn = document.getElementById('autofill-btn');
+  if(user) {
+    loginBtn.style.display='none';
+    navUser.style.display='flex';
+    document.getElementById('nav-avatar').src = user.avatar;
+    document.getElementById('nav-username').textContent = '@'+user.login;
+    rateBadge.textContent='⚡ 5000 req/hr';
+    rateBadge.className='nav-badge';
+    autofillBtn.style.display='flex';
+    document.getElementById('autofill-img').src=user.avatar;
+  } else {
+    loginBtn.style.display='flex';
+    navUser.style.display='none';
+    rateBadge.textContent='⚡ 60 req/hr';
+    rateBadge.className='nav-badge dim';
+    autofillBtn.style.display='none';
+  }
+}
+
+// ── API Calls ─────────────────────────────────────────────────────────────────
+async function runBattleAPI(u1, u2){
+  const r = await fetch(`${API_BASE}/api/battle`,{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    credentials:'include',body:JSON.stringify({username1:u1,username2:u2})
+  });
+  const d = await r.json();
+  if(!r.ok) throw new Error(d.error||'Battle failed');
+  return d;
+}
+
+// ── Battle Logic ──────────────────────────────────────────────────────────────
+function showError(msg){
+  const e=document.getElementById('error-msg');
+  document.getElementById('error-text').textContent=msg;
+  e.style.display='flex';
+}
+function hideError(){ document.getElementById('error-msg').style.display='none'; }
+
+async function startBattle(u1override, u2override){
+  const u1 = u1override||document.getElementById('u1').value.trim();
+  const u2 = u2override||document.getElementById('u2').value.trim();
+  if(!u1||!u2){showError('Please enter both GitHub usernames');return;}
+  if(u1===u2){showError('Enter two different usernames');return;}
+  hideError();
+
+  const btn = document.getElementById('battle-btn');
+  btn.disabled=true;
+  btn.querySelector('.btn-battle-inner').innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Analyzing...`;
+
+  document.getElementById('loading-wrap').style.display='block';
+  document.getElementById('results').style.display='none';
+  document.getElementById('results').innerHTML='';
+
+  // Destroy old charts
+  Object.values(charts).forEach(c=>{try{c.destroy();}catch{}});
+  charts={};
+
+  try {
+    const data = await runBattleAPI(u1, u2);
+    battleResult = data;
+    renderResults(data);
+
+    // Save history
+    const entry={id:Date.now(),p1:{login:data.p1.login,avatar:data.p1.avatar},p2:{login:data.p2.login,avatar:data.p2.avatar},winner:data.winner,date:new Date().toLocaleDateString()};
+    const hist=loadHistory();
+    const newH=[entry,...hist.filter(h=>!(h.p1.login===data.p1.login&&h.p2.login===data.p2.login))].slice(0,10);
+    saveHistory(newH);
+    renderHistory();
+  } catch(e){
+    showError(e.message);
+  }
+
+  document.getElementById('loading-wrap').style.display='none';
+  btn.disabled=false;
+  btn.querySelector('.btn-battle-inner').innerHTML=`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Start Battle`;
+}
+
+// ── Render Results ────────────────────────────────────────────────────────────
+function renderResults({p1,p2,winner}){
+  const w = winner==='p1'?p1:p2;
+  const l = winner==='p1'?p2:p1;
+  const p1Wins = [p1.followers>p2.followers,p1.repos>p2.repos,p1.stars>p2.stars,p1.forks>p2.forks,parseFloat(p1.accountAge)>parseFloat(p2.accountAge),p1.avgStars>p2.avgStars].filter(Boolean).length;
+  const totalCats = 6;
+
+  const cats = [
+    {label:'Followers',p1v:p1.followers,p2v:p2.followers},
+    {label:'Repos',p1v:p1.repos,p2v:p2.repos},
+    {label:'Stars',p1v:p1.stars,p2v:p2.stars},
+    {label:'Forks',p1v:p1.forks,p2v:p2.forks},
+    {label:'Account Age',p1v:parseFloat(p1.accountAge),p2v:parseFloat(p2.accountAge)},
+    {label:'Avg Stars',p1v:p1.avgStars,p2v:p2.avgStars},
+  ];
+
+  const cmpRows = [
+    {label:'Total Stars',p1v:p1.stars,p2v:p2.stars,p1f:fmt(p1.stars),p2f:fmt(p2.stars)},
+    {label:'Followers',p1v:p1.followers,p2v:p2.followers,p1f:fmt(p1.followers),p2f:fmt(p2.followers)},
+    {label:'Public Repos',p1v:p1.repos,p2v:p2.repos,p1f:fmt(p1.repos),p2f:fmt(p2.repos)},
+    {label:'Total Forks',p1v:p1.forks,p2v:p2.forks,p1f:fmt(p1.forks),p2f:fmt(p2.forks)},
+    {label:'Following',p1v:p1.following,p2v:p2.following,p1f:fmt(p1.following),p2f:fmt(p2.following)},
+    {label:'Follow Ratio',p1v:p1.ratio,p2v:p2.ratio,p1f:`${p1.ratio}:1`,p2f:`${p2.ratio}:1`},
+    {label:'Avg Stars/Repo',p1v:p1.avgStars,p2v:p2.avgStars,p1f:fmt(p1.avgStars),p2f:fmt(p2.avgStars)},
+    {label:'Account Age',p1v:parseFloat(p1.accountAge),p2v:parseFloat(p2.accountAge),p1f:`${p1.accountAge}y`,p2f:`${p2.accountAge}y`},
+    {label:'Top Language',p1v:null,p2v:null,p1f:p1.languages[0]?.name||'—',p2f:p2.languages[0]?.name||'—'},
+    {label:'Power Score',p1v:p1.score,p2v:p2.score,p1f:fmt(Math.round(p1.score)),p2f:fmt(Math.round(p2.score))},
+  ];
+
+  const p1W = pct(p1.score,p2.score);
+  const p2W = pct(p2.score,p1.score);
+
+  const html = `
+  <!-- Winner Banner -->
+  <div class="winner-banner fade fade-1">
+    <div class="winner-left">
+      <div class="winner-avatar-wrap">
+        <img class="winner-avatar" src="${esc(w.avatar)}" alt="${esc(w.login)}">
+        <span class="winner-crown">👑</span>
+      </div>
+      <div class="winner-meta">
+        <h3>${esc(w.name)} Wins</h3>
+        <p>@${esc(w.login)} defeated @${esc(l.login)}</p>
+        <div class="winner-pill">🏆 ${fmt(Math.round(w.score))} pts &nbsp;·&nbsp; ${winner==='p1'?p1Wins:totalCats-p1Wins}/${totalCats} categories</div>
+      </div>
+    </div>
+    <div class="score-bar-wrap">
+      <div class="score-bar-labels">
+        <span class="score-bar-label">${esc(p1.login)}</span>
+        <span class="score-bar-label">${esc(p2.login)}</span>
+      </div>
+      <div class="score-bar-track">
+        <div class="score-seg seg-1" style="width:${p1W}%"></div>
+        <div class="score-seg seg-2" style="width:${p2W}%"></div>
+      </div>
+      <div class="score-bar-vals">
+        <span class="score-bar-val" style="color:${winner==='p1'?'var(--win)':'var(--text3)'}">${fmt(Math.round(p1.score))}</span>
+        <span class="score-bar-val" style="color:${winner==='p2'?'var(--green)':'var(--text3)'}">${fmt(Math.round(p2.score))}</span>
+      </div>
+    </div>
+    <div class="banner-actions">
+      <button class="btn-sm" onclick="shareBattle()">📤 Share</button>
+      <button class="btn-sm" onclick="copyLinks()">🔗 Copy Links</button>
+    </div>
+  </div>
+
+  <!-- Categories -->
+  <div class="cat-section fade fade-2">
+    <div class="section-label">Category Breakdown</div>
+    <div class="cat-grid">
+      ${cats.map(c=>{
+        const cw = c.p1v>=c.p2v?p1:p2;
+        const wp = pct(Math.max(c.p1v,c.p2v),(c.p1v+c.p2v)||1);
+        return `<div class="cat-card">
+          <div class="cat-header"><span class="cat-label-text">${esc(c.label)}</span></div>
+          <div class="cat-winner-text"><span>@${esc(cw.login)}</span></div>
+          <div class="cat-track"><div class="cat-fill" style="width:${wp}%"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <!-- Profile Cards -->
+  <div class="section-label fade fade-3">Profile Cards</div>
+  <div class="battle-grid fade fade-3">
+    ${[{d:p1,side:'p1',isW:winner==='p1'},{d:p2,side:'p2',isW:winner==='p2'}].map(({d,side,isW})=>`
+    <div class="profile-card ${side}${isW?' winner':''}" id="card-${side}">
+      <div class="prof-header">
+        ${isW?'<div class="winner-badge">👑 WINNER</div>':''}
+        <div class="prof-top">
+          <div class="avatar-wrap ${isW?'winner-ring':side}">
+            <img src="${esc(d.avatar)}" alt="${esc(d.login)}">
+          </div>
+          <div class="prof-info">
+            <div class="prof-name">${esc(d.name)}</div>
+            <div class="prof-login"><span class="prof-login-at">@</span>${esc(d.login)}<button class="copy-btn" onclick="copyText('${esc(d.url)}','Profile URL copied!')">⎘</button></div>
+            ${d.bio?`<div class="prof-bio">${esc(d.bio)}</div>`:''}
+          </div>
+        </div>
+        <div class="prof-meta">
+          ${d.location?`<span class="prof-meta-item">📍 ${esc(d.location)}</span>`:''}
+          ${d.company?`<span class="prof-meta-item">🏢 ${esc(d.company.replace('@',''))}</span>`:''}
+          ${d.blog?`<span class="prof-meta-item">🔗 <a href="${d.blog.startsWith('http')?esc(d.blog):'https://'+esc(d.blog)}" target="_blank" rel="noopener">${esc(d.blog.replace(/^https?:\/\//,'').slice(0,22))}</a></span>`:''}
+          <span class="prof-meta-item">📅 ${d.joinYear} · ${d.accountAge}y</span>
+        </div>
+      </div>
+      <div class="stats-row">
+        ${[['repos','Repos',d.repos,d.repos>(side==='p1'?p2:p1).repos],['stars','Stars',d.stars,d.stars>(side==='p1'?p2:p1).stars],['followers','Followers',d.followers,d.followers>(side==='p1'?p2:p1).followers],['forks','Forks',d.forks,d.forks>(side==='p1'?p2:p1).forks]].map(([k,l,v,w])=>`
+        <div class="stat-cell${w?' win':''}">
+          <div class="stat-num${w?' win':''}" data-target="${v}" data-stat="${side}-${k}">${fmt(v)}</div>
+          <div class="stat-lbl">${l}</div>
+        </div>`).join('')}
+      </div>
+      <div class="ext-grid">
+        ${[['Following',fmt(d.following)],['F/F Ratio',`${d.ratio}:1`],['Avg ⭐/repo',fmt(d.avgStars)],['Avg 🍴/repo',fmt(d.avgForks)]].map(([k,v])=>`
+        <div class="ext-row"><span class="ext-k">${k}</span><span class="ext-v">${v}</span></div>`).join('')}
+      </div>
+      ${d.topRepos?.length?`
+      <div class="repos-wrap">
+        <div class="sub-label">Top Repositories</div>
+        <div class="repo-list">
+          ${d.topRepos.slice(0,3).map(r=>`
+          <div class="repo-item">
+            <div class="repo-top">
+              <a href="${esc(r.url)}" target="_blank" rel="noopener" class="repo-name">${esc(r.name)}</a>
+              ${r.lang?`<div class="repo-lang-dot" style="background:${lc(r.lang)}"></div>`:''}
+            </div>
+            ${r.desc?`<div class="repo-desc">${esc(r.desc)}</div>`:''}
+            <div class="repo-stats">
+              <span>⭐ ${fmt(r.stars)}</span>
+              <span>🍴 ${fmt(r.forks)}</span>
+              ${r.lang?`<span>${esc(r.lang)}</span>`:''}
+              <span>${timeAgo(r.updated)}</span>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>`:''}
+      ${d.languages?.length?`
+      <div class="lang-wrap">
+        <div class="sub-label">Languages</div>
+        ${d.languages.length>=3?`<div class="lang-chart-wrap"><canvas id="chart-${side}"></canvas></div>`:''}
+        <div class="lang-bars">
+          ${d.languages.slice(0,5).map(l=>`
+          <div class="lang-row">
+            <div class="lang-name">${esc(l.name)}</div>
+            <div class="lang-track"><div class="lang-fill" style="width:${l.pct}%;background:${lc(l.name)}"></div></div>
+            <div class="lang-pct">${l.pct}%</div>
+          </div>`).join('')}
+        </div>
+      </div>`:''}
+    </div>`).join('')}
+  </div>
+
+  <!-- Power Score -->
+  <div class="power-section fade fade-4">
+    <div class="section-label">Developer Power Score</div>
+    <div class="power-grid">
+      ${[{d:p1,side:'p1',opp:p2},{d:p2,side:'p2',opp:p1}].map(({d,side,opp})=>{
+        const mx=k=>Math.max(d[k],opp[k])||1;
+        const bars=[
+          {icon:'⭐',v:d.stars,m:mx('stars'),c:'#F5A623'},
+          {icon:'👥',v:d.followers,m:mx('followers'),c:'#00C8FF'},
+          {icon:'📦',v:d.repos,m:mx('repos'),c:'#00FF87'},
+          {icon:'🍴',v:d.forks,m:mx('forks'),c:'#CC0000'},
+          {icon:'📅',v:parseFloat(d.accountAge),m:Math.max(parseFloat(d.accountAge),parseFloat(opp.accountAge))||1,c:'#F5A623'},
+        ];
+        return `<div class="power-card ${side}">
+          <div class="power-top">
+            <div class="power-user">
+              <img class="power-avatar" src="${esc(d.avatar)}" alt="${esc(d.login)}">
+              <div><div class="power-name">${esc(d.name)}</div><div class="power-handle">@${esc(d.login)}</div></div>
+            </div>
+            <div class="power-score">${fmt(Math.round(d.score))}<span> pts</span></div>
+          </div>
+          <div class="power-bars">
+            ${bars.map(b=>`<div class="power-bar-row">
+              <span class="power-icon">${b.icon}</span>
+              <div class="power-track"><div class="power-fill" style="width:${Math.round(b.v/b.m*100)}%;background:${b.c}"></div></div>
+              <span class="power-val">${fmt(b.v)}</span>
+            </div>`).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="cmp-section fade fade-4">
+    <div class="section-label">Detailed Comparison</div>
+    <table class="cmp-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th style="color:var(--red-light)">${esc(p1.login)}</th>
+          <th style="color:var(--ice)">${esc(p2.login)}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${cmpRows.map(r=>{
+          const w1 = r.p1v!==null && r.p1v>r.p2v;
+          const w2 = r.p1v!==null && r.p2v>r.p1v;
+          return `<tr>
+            <td><span class="cmp-metric-label">${esc(r.label)}</span></td>
+            <td><span class="cmp-val${w1?' win':w2?' lose':''}">${w1?'✓ ':''}${esc(r.p1f)}</span></td>
+            <td><span class="cmp-val${w2?' win':w1?' lose':''}">${w2?'✓ ':''}${esc(r.p2f)}</span></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  </div>
+  `;
+
+  const resultsEl = document.getElementById('results');
+  resultsEl.innerHTML = html;
+  resultsEl.style.display = 'block';
+
+  // Animate counters
+  setTimeout(() => {
+    resultsEl.querySelectorAll('[data-target]').forEach(el => {
+      animateCount(el, parseInt(el.dataset.target), 900);
+    });
+    launchConfetti();
+  }, 100);
+
+  // Render lang charts
+  setTimeout(() => {
+    [{d:p1,side:'p1'},{d:p2,side:'p2'}].forEach(({d,side}) => {
+      if(d.languages?.length>=3) {
+        const canvas = document.getElementById(`chart-${side}`);
+        if(!canvas) return;
+        if(charts[side]) { charts[side].destroy(); }
+        charts[side] = new Chart(canvas, {
+          type:'doughnut',
+          data:{
+            labels:d.languages.map(l=>l.name),
+            datasets:[{data:d.languages.map(l=>l.pct),backgroundColor:d.languages.map(l=>lc(l.name)),borderWidth:0,hoverOffset:4}]
+          },
+          options:{
+            plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw}%`},backgroundColor:'#1F2937',titleColor:'#F9FAFB',bodyColor:'#9CA3AF',borderColor:'#374151',borderWidth:1,padding:8}},
+            cutout:'65%',responsive:true,maintainAspectRatio:true,animation:{duration:500}
+          }
+        });
+      }
+    });
+  }, 150);
+
+  window.scrollTo({top:document.getElementById('results').offsetTop-80,behavior:'smooth'});
+}
+
+// ── Share/Copy ────────────────────────────────────────────────────────────────
+function shareBattle(){
+  if(!battleResult) return;
+  const {p1,p2,winner}=battleResult;
+  const w=winner==='p1'?p1:p2;const l=winner==='p1'?p2:p1;
+  const text=`⚔️ GitHub Battle: @${p1.login} vs @${p2.login}\n🏆 Winner: @${w.login} (${fmt(Math.round(w.score))} pts)\n⭐ Stars: ${fmt(p1.stars)} vs ${fmt(p2.stars)}\n👥 Followers: ${fmt(p1.followers)} vs ${fmt(p2.followers)}`;
+  if(navigator.share) navigator.share({title:'GitHub Battle',text});
+  else navigator.clipboard.writeText(text).then(()=>showToast('📋 Copied to clipboard!'));
+}
+function copyLinks(){
+  if(!battleResult) return;
+  navigator.clipboard.writeText(`${battleResult.p1.url} vs ${battleResult.p2.url}`).then(()=>showToast('🔗 Links copied!'));
+}
+function copyText(text, msg){
+  navigator.clipboard.writeText(text).then(()=>showToast(msg||'Copied!')).catch(()=>{});
+}
+
+// ── History ───────────────────────────────────────────────────────────────────
+function renderHistory(){
+  const hist = loadHistory();
+  const wrap = document.getElementById('history-wrap');
+  if(hist.length===0){
+    wrap.innerHTML=`<div class="history-section"><div class="section-label">Recent Battles</div><div class="history-empty"><div class="empty-icon">⚔️</div><p>No battles yet — start your first one above</p></div></div>`;
+    return;
+  }
+  wrap.innerHTML=`
+  <div class="history-section">
+    <div class="history-header">
+      <div class="section-label" style="margin-bottom:0;flex:1">Recent Battles</div>
+      <button class="btn-clear" onclick="clearHistory()">Clear All</button>
+    </div>
+    <div class="history-grid">
+      ${hist.map(h=>`
+      <div class="history-item" onclick="replayBattle('${esc(h.p1.login)}','${esc(h.p2.login)}')">
+        <div class="h-avatars">
+          <img class="h-av" src="${esc(h.p1.avatar)}" alt="">
+          <img class="h-av" src="${esc(h.p2.avatar)}" alt="">
+        </div>
+        <div class="h-info">
+          <div class="h-users">@${esc(h.p1.login)} vs @${esc(h.p2.login)}</div>
+          <div class="h-meta">🏆 ${esc(h.winner==='p1'?h.p1.login:h.p2.login)} won · ${esc(h.date)}</div>
+        </div>
+        <span class="h-replay">Replay</span>
+        <button class="h-del" onclick="event.stopPropagation();deleteHistory(${h.id})">✕</button>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function replayBattle(u1,u2){
+  document.getElementById('u1').value=u1;
+  document.getElementById('u2').value=u2;
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>startBattle(u1,u2),200);
+}
+function deleteHistory(id){
+  const h=loadHistory().filter(x=>x.id!==id);
+  saveHistory(h); renderHistory();
+}
+function clearHistory(){ saveHistory([]); renderHistory(); }
+
+// ── Keyboard shortcut ─────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if(e.key==='Enter') {
+    const u1=document.getElementById('u1').value.trim();
+    const u2=document.getElementById('u2').value.trim();
+    if(u1&&u2) startBattle();
+  }
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(async () => {
+  // Handle OAuth redirect
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('auth')==='success'){
+    showToast('✅ Logged in with GitHub!');
+    window.history.replaceState({},'',window.location.pathname);
+  }
+  if(params.get('auth')==='failed') showToast('❌ GitHub login failed');
+
+  // Check auth state
+  const res = await fetchAuthUser();
+  authUser = res.loggedIn ? res.user : null;
+  updateNavAuth(authUser);
+  if(authUser) document.getElementById('u1').value = authUser.login;
+
+  renderHistory();
+})();
+</script>
+<script type="application/ld+json">
+{
+ "@context":"https://schema.org",
+ "@type":"FAQPage",
+ "mainEntity":[
+ {
+  "@type":"Question",
+  "name":"How do I compare GitHub profiles?",
+  "acceptedAnswer":{
+   "@type":"Answer",
+   "text":"Enter two GitHub usernames and GitHub Fighter compares their repositories, stars, followers and activity."
+  }
+ },
+ {
+  "@type":"Question",
+  "name":"Is GitHub Fighter free?",
+  "acceptedAnswer":{
+   "@type":"Answer",
+   "text":"Yes, GitHub Fighter is completely free to use."
+  }
+ }
+ ]
+}
+</script>
+</body>
+</html>
