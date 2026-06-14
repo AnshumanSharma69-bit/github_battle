@@ -1,7 +1,2 @@
-<<<<<<< HEAD
 node_modules/
 .env
-=======
-.env
-/node_modules
->>>>>>> f8a3c74 (Remove node_modules from repository)
