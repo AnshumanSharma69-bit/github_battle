@@ -498,6 +498,56 @@ body::after{
 .history-empty{background:var(--surface);border:1px dashed var(--border2);border-radius:var(--r-xl);padding:32px;text-align:center}
 .history-empty p{font-size:13px;color:var(--text3);margin-top:8px;text-transform:uppercase;letter-spacing:1px}
 .empty-icon{font-size:28px;opacity:.3}
+.intel-panel{
+    max-width:1200px;
+    margin:60px auto;
+}
+
+.section-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:20px;
+    color:var(--gold);
+    font-size:.8rem;
+    letter-spacing:3px;
+    font-weight:700;
+}
+
+.section-dot{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--gold);
+}
+
+.intel-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:16px;
+}
+
+.intel-card{
+    background:rgba(255,255,255,.02);
+    border:1px solid rgba(255,179,0,.15);
+    border-radius:18px;
+    padding:24px;
+    transition:.25s;
+}
+
+.intel-card:hover{
+    transform:translateY(-2px);
+}
+
+.intel-card h3{
+    color:#fff;
+    margin-bottom:12px;
+}
+
+.intel-card p{
+    color:#9ca3af;
+    line-height:1.7;
+}
 
 /* ── Toast ── */
 .toast{
@@ -560,14 +610,26 @@ body::after{
   <main class="main">
 
     <!-- Hero -->
-    <div class="hero">
-      <div class="hero-tag"><span class="hero-tag-dot"></span> Live Combat Stats</div>
-     <h1 style="margin-bottom:0"><em>GiTHUB Battle</em></h1>
-      <div class="hero-divider"><div class="hero-divider-line"></div><div class="hero-divider-icon">⚔️</div><div class="hero-divider-line r"></div></div><p class="hero-sub">   GitHub Fighter is a free GitHub profile comparison tool.
-    Compare repositories, stars, followers, forks, programming
-    languages, and developer activity side by side.</p></p>
-    </div>
+  <!-- Hero -->
+<div class="hero">
+  <div class="hero-tag">
+    <span class="hero-tag-dot"></span>
+    Live Combat Stats
+  </div>
 
+  <h1 style="margin-bottom:0;">
+    GitHub Battle
+  </h1>
+
+  <div class="hero-divider">
+    <div class="hero-divider-line"></div>
+    <div class="hero-divider-icon">⚔️</div>
+    <div class="hero-divider-line r"></div>
+  </div>
+
+  <p class="hero-sub">
+Compare GitHub profiles side by side with GitHub Fighter. Analyze repositories, stars, followers, forks, programming languages, and developer activity in real time. Battle two GitHub users and discover who has the stronger open-source profile. </p>
+</div>
     <!-- Input Card -->
     <div class="input-card fade">
       <div class="input-card-header">
@@ -626,6 +688,39 @@ body::after{
 
     <!-- History -->
     <div id="history-wrap"></div>
+   <section class="intel-panel">
+  <div class="section-title">
+    <span class="section-dot"></span>
+    BATTLE INTEL
+  </div>
+
+  <div class="intel-grid">
+    <div class="intel-card">
+      <h3>⚔️ Compare GitHub Profiles</h3>
+      <p>
+        Compare repositories, stars, followers, forks, programming languages,
+        and developer activity side by side using live GitHub data.
+      </p>
+    </div>
+
+    <div class="intel-card">
+      <h3>🏆 Battle Statistics</h3>
+      <p>
+        Analyze profile strength, repository popularity, contribution history,
+        and open-source impact in a head-to-head showdown.
+      </p>
+    </div>
+
+    <div class="intel-card">
+      <h3>🚀 Real-Time Analysis</h3>
+      <p>
+        Enter two GitHub usernames and instantly discover who dominates the
+        battlefield based on public GitHub statistics.
+      </p>
+    </div>
+  </div>
+</section>
+    
 
   </main>
 </div>
