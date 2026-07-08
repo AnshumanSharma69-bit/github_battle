@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>GitHub Fighter ⚔️ - Compare GitHub Profiles, Repositories & Stats</title>
+<title>GitFut ⚽ - FIFA-Style GitHub Profile Cards & Battles</title>
 
 <meta name="description" content="Compare GitHub profiles head-to-head. Battle repositories, followers, stars, commits, and developer activity with GitHub Fighter.">
 
@@ -425,6 +425,56 @@ body::after{
 .lang-fill{height:100%;border-radius:var(--r-full);transition:width .5s ease}
 .lang-pct{font-size:10px;color:var(--text3);width:28px;text-align:right;font-weight:600}
 
+/* ── GitFut Cards ── */
+.futcard-section{margin-bottom:24px}
+.futcard-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.futcard{
+  position:relative;border-radius:var(--r-xl);overflow:hidden;
+  padding:22px 20px 18px;min-height:360px;
+  background:linear-gradient(160deg,var(--fc-bg1) 0%,var(--fc-bg2) 55%,var(--fc-bg3) 100%);
+  border:1px solid var(--fc-border);
+  box-shadow:0 12px 50px var(--fc-glow),inset 0 1px 0 rgba(255,255,255,.06);
+  transition:transform .25s cubic-bezier(.4,0,.2,1);
+}
+.futcard:hover{transform:translateY(-5px)}
+.futcard.rarity-bronze{--fc-bg1:#3D2A1A;--fc-bg2:#2B1D12;--fc-bg3:#170F09;--fc-border:rgba(196,138,78,.4);--fc-glow:rgba(196,138,78,.15);--fc-accent:#D9A45F;}
+.futcard.rarity-silver{--fc-bg1:#3A4048;--fc-bg2:#262B30;--fc-bg3:#14171A;--fc-border:rgba(198,208,216,.35);--fc-glow:rgba(198,208,216,.15);--fc-accent:#D3DDE4;}
+.futcard.rarity-gold{--fc-bg1:#4A3400;--fc-bg2:#2E2000;--fc-bg3:#130D00;--fc-border:var(--gold-border);--fc-glow:var(--gold-glow);--fc-accent:var(--gold-light);}
+.futcard.rarity-icon{--fc-bg1:#3A0A12;--fc-bg2:#1D1300;--fc-bg3:#001B26;--fc-border:rgba(255,209,102,.5);--fc-glow:rgba(0,200,255,.25);--fc-accent:#FFFFFF;}
+.futcard.rarity-icon::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:linear-gradient(120deg,var(--red-light),var(--gold-light),var(--ice),var(--red-light));
+  background-size:300% 300%;opacity:.13;animation:iconShift 6s ease infinite;
+}
+@keyframes iconShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.futcard-topbar{display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:1}
+.futcard-rank{display:flex;flex-direction:column;align-items:center;line-height:1}
+.futcard-ovr{font-size:34px;font-weight:900;color:var(--fc-accent);letter-spacing:-1px;text-shadow:0 0 16px var(--fc-glow)}
+.futcard-pos{font-size:12px;font-weight:800;color:var(--fc-accent);letter-spacing:1.5px;margin-top:3px;opacity:.85}
+.futcard-rarity-badge{
+  font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
+  padding:4px 10px;border-radius:var(--r-full);border:1px solid var(--fc-border);color:var(--fc-accent);
+  height:fit-content;
+}
+.futcard-photo-wrap{display:flex;justify-content:center;margin:4px 0 10px;position:relative;z-index:1}
+.futcard-photo{
+  width:96px;height:96px;border-radius:50%;object-fit:cover;
+  border:3px solid var(--fc-accent);box-shadow:0 0 24px var(--fc-glow);
+}
+.futcard-name{
+  text-align:center;font-size:16px;font-weight:800;color:#fff;letter-spacing:1px;
+  text-transform:uppercase;margin-bottom:2px;position:relative;z-index:1;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 8px;
+}
+.futcard-login{text-align:center;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:14px;position:relative;z-index:1}
+.futcard-divider{height:1px;background:linear-gradient(90deg,transparent,var(--fc-border),transparent);margin-bottom:12px;position:relative;z-index:1}
+.futcard-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px 20px;position:relative;z-index:1}
+.futcard-stat-row{display:flex;align-items:center;gap:10px}
+.futcard-stat-val{font-size:17px;font-weight:800;color:var(--fc-accent);min-width:24px}
+.futcard-stat-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:1px}
+.futcard-winner-glow{box-shadow:0 0 0 2px var(--win),0 12px 60px rgba(0,255,135,.2)}
+@media(max-width:720px){.futcard-grid{grid-template-columns:1fr}}
+
 /* ── Power Score ── */
 .power-section{margin-bottom:24px}
 .power-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -590,8 +640,8 @@ body::after{
   <!-- Navbar -->
   <nav class="nav">
     <div class="nav-brand">
-      <div class="nav-brand-icon">⚔️</div>
-      GitHub Battle
+      <div class="nav-brand-icon">⚽</div>
+      GitFut
     </div>
     <div class="nav-right" id="nav-right">
       <span class="nav-badge dim" id="rate-badge">⚡ 60 req/hr</span>
@@ -614,21 +664,21 @@ body::after{
 <div class="hero">
   <div class="hero-tag">
     <span class="hero-tag-dot"></span>
-    Live Combat Stats
+    Live Match Ratings
   </div>
 
   <h1 style="margin-bottom:0;">
-    GitHub Battle
+    GitFut
   </h1>
 
   <div class="hero-divider">
     <div class="hero-divider-line"></div>
-    <div class="hero-divider-icon">⚔️</div>
+    <div class="hero-divider-icon">⚽</div>
     <div class="hero-divider-line r"></div>
   </div>
 
   <p class="hero-sub">
-Compare GitHub profiles side by side with GitHub Fighter. Analyze repositories, stars, followers, forks, programming languages, and developer activity in real time. Battle two GitHub users and discover who has the stronger open-source profile. </p>
+Turn any GitHub profile into a FIFA Ultimate Team–style player card. GitFut maps repos, stars, followers, forks, and languages onto PAC/SHO/PAS/DRI/DEF/PHY ratings, assigns a rarity tier from Bronze to Icon, then puts two developers head to head to see who wins the match. </p>
 </div>
     <!-- Input Card -->
     <div class="input-card fade">
@@ -739,6 +789,67 @@ let charts = {};
 // ── Lang Colors ──────────────────────────────────────────────────────────────
 const LC = {JavaScript:'#f7df1e',TypeScript:'#3178c6',Python:'#3572A5',Java:'#b07219',Go:'#00add8',Rust:'#dea584',Ruby:'#701516',PHP:'#4f5d95','C++':'#f34b7d',C:'#555555',Swift:'#fa7343',Kotlin:'#7f52ff',HTML:'#e34c26',CSS:'#563d7c',Shell:'#89e051',Dart:'#00b4ab',Vue:'#41b883','C#':'#178600',Other:'#4B5563'};
 const lc = n => LC[n] || LC.Other;
+
+// ── GitFut: FIFA-style attribute engine ──────────────────────────────────────
+// Converts raw GitHub stats (already fetched by /api/battle) into 0-99 FUT-style
+// attributes. No extra API calls — pure remap of data we already have.
+function logScale(v, cap, min = 40, max = 99) {
+  v = Math.max(0, v || 0);
+  const t = Math.log(v + 1) / Math.log(cap + 1);
+  return Math.max(min, Math.min(max, Math.round(min + t * (max - min))));
+}
+function daysSince(dateStr) { return Math.floor((Date.now() - new Date(dateStr)) / 864e5); }
+
+function computeFutStats(d) {
+  // PAC – recency of activity (freshest pushed top repo). No push date < ~2yr = full pace.
+  const freshest = d.topRepos?.length ? Math.min(...d.topRepos.map(r => daysSince(r.updated))) : 400;
+  const pac = logScale(Math.max(0, 730 - Math.min(freshest, 730)), 730, 40, 97);
+  const sho = logScale(d.stars, 50000, 22, 99);                           // SHO – total stars
+  const pas = logScale(d.followers, 20000, 22, 99);                       // PAS – community reach
+  const dri = logScale(d.languages?.length || 1, 10, 30, 95);             // DRI – language versatility
+  const def = logScale(d.repos, 300, 22, 99);                             // DEF – repos maintained
+  const phy = logScale(parseFloat(d.accountAge) * 10 + d.forks / 20, 220, 22, 99); // PHY – longevity + battle-tested
+  const ovr = Math.round(pac * .12 + sho * .22 + pas * .16 + dri * .16 + def * .16 + phy * .18);
+  return { pac, sho, pas, dri, def, phy, ovr };
+}
+function rarityFromOvr(ovr) {
+  if (ovr >= 85) return 'icon';
+  if (ovr >= 75) return 'gold';
+  if (ovr >= 65) return 'silver';
+  return 'bronze';
+}
+const RARITY_LABEL = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold', icon: 'Icon' };
+function positionFromStats(s) {
+  const map = { sho: 'ST', pas: 'CAM', dri: 'LW', pac: 'RB', def: 'CB', phy: 'CDM' };
+  return Object.entries(map).map(([k, pos]) => [pos, s[k]]).sort((a, b) => b[1] - a[1])[0][0];
+}
+function renderFutCard(d, fut, isW) {
+  const rarity = rarityFromOvr(fut.ovr);
+  const pos = positionFromStats(fut);
+  return `<div class="futcard rarity-${rarity}${isW ? ' futcard-winner-glow' : ''}">
+    <div class="futcard-topbar">
+      <div class="futcard-rank">
+        <div class="futcard-ovr">${fut.ovr}</div>
+        <div class="futcard-pos">${pos}</div>
+      </div>
+      <span class="futcard-rarity-badge">${RARITY_LABEL[rarity]}</span>
+    </div>
+    <div class="futcard-photo-wrap">
+      <img class="futcard-photo" src="${esc(d.avatar)}" alt="${esc(d.login)}">
+    </div>
+    <div class="futcard-name">${esc(d.name)}</div>
+    <div class="futcard-login">@${esc(d.login)}</div>
+    <div class="futcard-divider"></div>
+    <div class="futcard-stats">
+      <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.pac}</span><span class="futcard-stat-label">PAC</span></div>
+      <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.dri}</span><span class="futcard-stat-label">DRI</span></div>
+      <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.sho}</span><span class="futcard-stat-label">SHO</span></div>
+      <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.def}</span><span class="futcard-stat-label">DEF</span></div>
+      <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.pas}</span><span class="futcard-stat-label">PAS</span></div>
+      <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.phy}</span><span class="futcard-stat-label">PHY</span></div>
+    </div>
+  </div>`;
+}
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
 const fmt = v => v>=1e6?`${(v/1e6).toFixed(1)}M`:v>=1000?`${(v/1000).toFixed(1)}k`:String(v);
@@ -931,6 +1042,9 @@ function renderResults({p1,p2,winner}){
   const p1W = pct(p1.score,p2.score);
   const p2W = pct(p2.score,p1.score);
 
+  const p1Fut = computeFutStats(p1);
+  const p2Fut = computeFutStats(p2);
+
   const html = `
   <!-- Winner Banner -->
   <div class="winner-banner fade fade-1">
@@ -962,6 +1076,15 @@ function renderResults({p1,p2,winner}){
     <div class="banner-actions">
       <button class="btn-sm" onclick="shareBattle()">📤 Share</button>
       <button class="btn-sm" onclick="copyLinks()">🔗 Copy Links</button>
+    </div>
+  </div>
+
+  <!-- GitFut Cards -->
+  <div class="futcard-section fade fade-2">
+    <div class="section-label">GitFut Cards</div>
+    <div class="futcard-grid">
+      ${renderFutCard(p1, p1Fut, winner==='p1')}
+      ${renderFutCard(p2, p2Fut, winner==='p2')}
     </div>
   </div>
 
