@@ -426,53 +426,66 @@ body::after{
 .lang-pct{font-size:10px;color:var(--text3);width:28px;text-align:right;font-weight:600}
 
 /* ── GitFut Cards ── */
+:root{
+  --fut-clip: polygon(50.00% 3.00%, 51.68% 3.07%, 53.35% 3.29%, 55.03% 3.67%, 56.70% 4.27%, 58.38% 5.00%, 60.06% 5.00%, 61.73% 5.00%, 63.41% 5.00%, 65.09% 4.81%, 66.76% 4.03%, 68.44% 3.51%, 70.11% 3.19%, 71.79% 3.03%, 73.47% 3.01%, 75.14% 3.13%, 76.82% 3.41%, 78.49% 3.86%, 80.17% 4.55%, 81.85% 5.00%, 83.52% 5.00%, 85.20% 5.00%, 86.88% 5.00%, 86.88% 13.78%, 86.88% 17.23%, 86.88% 20.68%, 86.88% 24.13%, 86.88% 27.58%, 86.88% 31.03%, 86.88% 34.47%, 86.88% 37.92%, 86.88% 41.37%, 86.88% 44.82%, 86.88% 48.27%, 86.88% 51.72%, 86.88% 55.17%, 86.88% 58.62%, 86.88% 62.06%, 86.88% 65.51%, 86.88% 68.96%, 86.21% 72.41%, 83.07% 75.86%, 79.78% 79.31%, 76.31% 82.76%, 72.60% 86.21%, 68.59% 89.65%, 64.11% 93.10%, 58.81% 96.55%, 50.00% 100.00%, 50.00% 100.00%, 41.19% 96.55%, 35.89% 93.10%, 31.41% 89.65%, 27.40% 86.21%, 23.69% 82.76%, 20.22% 79.31%, 16.93% 75.86%, 13.79% 72.41%, 13.12% 68.96%, 13.12% 65.51%, 13.12% 62.06%, 13.12% 58.62%, 13.12% 55.17%, 13.12% 51.72%, 13.12% 48.27%, 13.12% 44.82%, 13.12% 41.37%, 13.12% 37.92%, 13.12% 34.47%, 13.12% 31.03%, 13.12% 27.58%, 13.12% 24.13%, 13.12% 20.68%, 13.12% 17.23%, 13.12% 13.78%, 13.12% 5.00%, 14.80% 5.00%, 16.48% 5.00%, 18.15% 5.00%, 19.83% 4.55%, 21.51% 3.86%, 23.18% 3.41%, 24.86% 3.13%, 26.53% 3.01%, 28.21% 3.03%, 29.89% 3.19%, 31.56% 3.51%, 33.24% 4.03%, 34.91% 4.81%, 36.59% 5.00%, 38.27% 5.00%, 39.94% 5.00%, 41.62% 5.00%, 43.30% 4.27%, 44.97% 3.67%, 46.65% 3.29%, 48.32% 3.07%, 50.00% 3.00%);
+}
 .futcard-section{margin-bottom:24px}
-.futcard-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.futcard-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;justify-items:center}
 .futcard{
-  position:relative;border-radius:var(--r-xl);overflow:hidden;
-  padding:22px 20px 18px;min-height:360px;
-  background:linear-gradient(160deg,var(--fc-bg1) 0%,var(--fc-bg2) 55%,var(--fc-bg3) 100%);
-  border:1px solid var(--fc-border);
-  box-shadow:0 12px 50px var(--fc-glow),inset 0 1px 0 rgba(255,255,255,.06);
+  position:relative;width:100%;max-width:280px;aspect-ratio:320/600;
+  filter:drop-shadow(0 16px 40px var(--fc-glow));
   transition:transform .25s cubic-bezier(.4,0,.2,1);
 }
-.futcard:hover{transform:translateY(-5px)}
-.futcard.rarity-bronze{--fc-bg1:#3D2A1A;--fc-bg2:#2B1D12;--fc-bg3:#170F09;--fc-border:rgba(196,138,78,.4);--fc-glow:rgba(196,138,78,.15);--fc-accent:#D9A45F;}
-.futcard.rarity-silver{--fc-bg1:#3A4048;--fc-bg2:#262B30;--fc-bg3:#14171A;--fc-border:rgba(198,208,216,.35);--fc-glow:rgba(198,208,216,.15);--fc-accent:#D3DDE4;}
-.futcard.rarity-gold{--fc-bg1:#4A3400;--fc-bg2:#2E2000;--fc-bg3:#130D00;--fc-border:var(--gold-border);--fc-glow:var(--gold-glow);--fc-accent:var(--gold-light);}
-.futcard.rarity-icon{--fc-bg1:#3A0A12;--fc-bg2:#1D1300;--fc-bg3:#001B26;--fc-border:rgba(255,209,102,.5);--fc-glow:rgba(0,200,255,.25);--fc-accent:#FFFFFF;}
-.futcard.rarity-icon::before{
+.futcard:hover{transform:translateY(-6px) scale(1.01)}
+.futcard-border{
+  position:absolute;inset:0;clip-path:var(--fut-clip);
+  background:linear-gradient(155deg,var(--fc-edge1) 0%,var(--fc-edge2) 45%,var(--fc-edge1) 100%);
+}
+.futcard-inner{
+  position:absolute;inset:5px;clip-path:var(--fut-clip);
+  background:linear-gradient(170deg,var(--fc-bg1) 0%,var(--fc-bg2) 55%,var(--fc-bg3) 100%);
+  display:flex;flex-direction:column;align-items:center;
+  padding:8% 10% 0;
+}
+.futcard.rarity-bronze{--fc-edge1:#8C5A2E;--fc-edge2:#4A3016;--fc-bg1:#3D2A1A;--fc-bg2:#2B1D12;--fc-bg3:#170F09;--fc-glow:rgba(196,138,78,.25);--fc-accent:#E0A667;}
+.futcard.rarity-silver{--fc-edge1:#B9C4CC;--fc-edge2:#5C666D;--fc-bg1:#3A4048;--fc-bg2:#262B30;--fc-bg3:#14171A;--fc-glow:rgba(198,208,216,.25);--fc-accent:#E4ECF1;}
+.futcard.rarity-gold{--fc-edge1:var(--gold-light);--fc-edge2:#7A5A00;--fc-bg1:#4A3400;--fc-bg2:#2E2000;--fc-bg3:#130D00;--fc-glow:var(--gold-glow);--fc-accent:var(--gold-light);}
+.futcard.rarity-icon{--fc-edge1:#FFE9A8;--fc-edge2:#B98A2E;--fc-bg1:#3A0A12;--fc-bg2:#1D1300;--fc-bg3:#001B26;--fc-glow:rgba(0,200,255,.3);--fc-accent:#FFFFFF;}
+.futcard.rarity-icon .futcard-inner::before{
   content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
   background:linear-gradient(120deg,var(--red-light),var(--gold-light),var(--ice),var(--red-light));
-  background-size:300% 300%;opacity:.13;animation:iconShift 6s ease infinite;
+  background-size:300% 300%;opacity:.14;animation:iconShift 6s ease infinite;
 }
 @keyframes iconShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-.futcard-topbar{display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:1}
+.futcard-topbar{width:100%;display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:2}
 .futcard-rank{display:flex;flex-direction:column;align-items:center;line-height:1}
-.futcard-ovr{font-size:34px;font-weight:900;color:var(--fc-accent);letter-spacing:-1px;text-shadow:0 0 16px var(--fc-glow)}
-.futcard-pos{font-size:12px;font-weight:800;color:var(--fc-accent);letter-spacing:1.5px;margin-top:3px;opacity:.85}
+.futcard-ovr{font-size:30px;font-weight:900;color:var(--fc-accent);letter-spacing:-1px;text-shadow:0 0 14px var(--fc-glow)}
+.futcard-pos{font-size:11px;font-weight:800;color:var(--fc-accent);letter-spacing:1.5px;margin-top:3px;opacity:.85}
 .futcard-rarity-badge{
-  font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
-  padding:4px 10px;border-radius:var(--r-full);border:1px solid var(--fc-border);color:var(--fc-accent);
-  height:fit-content;
+  font-size:8px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+  padding:3px 8px;border-radius:var(--r-full);border:1px solid var(--fc-accent);color:var(--fc-accent);
+  height:fit-content;opacity:.9;
 }
-.futcard-photo-wrap{display:flex;justify-content:center;margin:4px 0 10px;position:relative;z-index:1}
+.futcard-photo-wrap{
+  width:96px;height:96px;margin:2px 0 6px;position:relative;z-index:1;
+}
 .futcard-photo{
-  width:96px;height:96px;border-radius:50%;object-fit:cover;
-  border:3px solid var(--fc-accent);box-shadow:0 0 24px var(--fc-glow);
+  width:100%;height:100%;object-fit:cover;
+  -webkit-mask-image:radial-gradient(circle,#000 58%,transparent 78%);
+  mask-image:radial-gradient(circle,#000 58%,transparent 78%);
 }
 .futcard-name{
-  text-align:center;font-size:16px;font-weight:800;color:#fff;letter-spacing:1px;
-  text-transform:uppercase;margin-bottom:2px;position:relative;z-index:1;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 8px;
+  width:100%;text-align:center;font-size:15px;font-weight:800;color:#fff;letter-spacing:.5px;
+  text-transform:uppercase;margin-bottom:1px;position:relative;z-index:2;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
-.futcard-login{text-align:center;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:14px;position:relative;z-index:1}
-.futcard-divider{height:1px;background:linear-gradient(90deg,transparent,var(--fc-border),transparent);margin-bottom:12px;position:relative;z-index:1}
-.futcard-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px 20px;position:relative;z-index:1}
-.futcard-stat-row{display:flex;align-items:center;gap:10px}
-.futcard-stat-val{font-size:17px;font-weight:800;color:var(--fc-accent);min-width:24px}
-.futcard-stat-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:1px}
-.futcard-winner-glow{box-shadow:0 0 0 2px var(--win),0 12px 60px rgba(0,255,135,.2)}
+.futcard-login{width:100%;text-align:center;font-size:10px;color:rgba(255,255,255,.5);margin-bottom:8px;position:relative;z-index:2}
+.futcard-divider{width:70%;height:1px;background:linear-gradient(90deg,transparent,var(--fc-accent),transparent);opacity:.5;margin-bottom:10px;position:relative;z-index:2}
+.futcard-stats{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px 10px;position:relative;z-index:2}
+.futcard-stat-row{display:flex;align-items:center;justify-content:center;gap:7px}
+.futcard-stat-val{font-size:15px;font-weight:800;color:var(--fc-accent);min-width:20px;text-align:right}
+.futcard-stat-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:1px}
+.futcard-winner-glow .futcard-border{background:linear-gradient(155deg,var(--win) 0%,var(--fc-edge2) 45%,var(--win) 100%)}
 @media(max-width:720px){.futcard-grid{grid-template-columns:1fr}}
 
 /* ── Power Score ── */
@@ -827,26 +840,29 @@ function renderFutCard(d, fut, isW) {
   const rarity = rarityFromOvr(fut.ovr);
   const pos = positionFromStats(fut);
   return `<div class="futcard rarity-${rarity}${isW ? ' futcard-winner-glow' : ''}">
-    <div class="futcard-topbar">
-      <div class="futcard-rank">
-        <div class="futcard-ovr">${fut.ovr}</div>
-        <div class="futcard-pos">${pos}</div>
+    <div class="futcard-border"></div>
+    <div class="futcard-inner">
+      <div class="futcard-topbar">
+        <div class="futcard-rank">
+          <div class="futcard-ovr">${fut.ovr}</div>
+          <div class="futcard-pos">${pos}</div>
+        </div>
+        <span class="futcard-rarity-badge">${RARITY_LABEL[rarity]}</span>
       </div>
-      <span class="futcard-rarity-badge">${RARITY_LABEL[rarity]}</span>
-    </div>
-    <div class="futcard-photo-wrap">
-      <img class="futcard-photo" src="${esc(d.avatar)}" alt="${esc(d.login)}">
-    </div>
-    <div class="futcard-name">${esc(d.name)}</div>
-    <div class="futcard-login">@${esc(d.login)}</div>
-    <div class="futcard-divider"></div>
-    <div class="futcard-stats">
-      <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.pac}</span><span class="futcard-stat-label">PAC</span></div>
-      <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.dri}</span><span class="futcard-stat-label">DRI</span></div>
-      <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.sho}</span><span class="futcard-stat-label">SHO</span></div>
-      <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.def}</span><span class="futcard-stat-label">DEF</span></div>
-      <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.pas}</span><span class="futcard-stat-label">PAS</span></div>
-      <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.phy}</span><span class="futcard-stat-label">PHY</span></div>
+      <div class="futcard-photo-wrap">
+        <img class="futcard-photo" src="${esc(d.avatar)}" alt="${esc(d.login)}">
+      </div>
+      <div class="futcard-name">${esc(d.name)}</div>
+      <div class="futcard-login">@${esc(d.login)}</div>
+      <div class="futcard-divider"></div>
+      <div class="futcard-stats">
+        <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.pac}</span><span class="futcard-stat-label">PAC</span></div>
+        <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.dri}</span><span class="futcard-stat-label">DRI</span></div>
+        <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.sho}</span><span class="futcard-stat-label">SHO</span></div>
+        <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.def}</span><span class="futcard-stat-label">DEF</span></div>
+        <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.pas}</span><span class="futcard-stat-label">PAS</span></div>
+        <div class="futcard-stat-row"><span class="futcard-stat-val">${fut.phy}</span><span class="futcard-stat-label">PHY</span></div>
+      </div>
     </div>
   </div>`;
 }
