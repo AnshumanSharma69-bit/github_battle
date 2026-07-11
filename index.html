@@ -432,60 +432,69 @@ body::after{
 .futcard-section{margin-bottom:24px}
 .futcard-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;justify-items:center}
 .futcard{
-  position:relative;width:100%;max-width:280px;aspect-ratio:320/600;
-  filter:drop-shadow(0 16px 40px var(--fc-glow));
+  position:relative;width:100%;max-width:280px;
+  filter:drop-shadow(0 18px 44px var(--fc-glow));
   transition:transform .25s cubic-bezier(.4,0,.2,1);
 }
+.futcard::before{content:'';display:block;padding-top:187.5%}
 .futcard:hover{transform:translateY(-6px) scale(1.01)}
 .futcard-border{
-  position:absolute;inset:0;clip-path:var(--fut-clip);
-  background:linear-gradient(155deg,var(--fc-edge1) 0%,var(--fc-edge2) 45%,var(--fc-edge1) 100%);
+  position:absolute;top:0;right:0;bottom:0;left:0;clip-path:var(--fut-clip);
+  background:linear-gradient(155deg,var(--fc-hi) 0%,var(--fc-mid) 18%,var(--fc-lo) 42%,var(--fc-mid) 58%,var(--fc-hi) 74%,var(--fc-lo) 100%);
 }
 .futcard-inner{
-  position:absolute;inset:5px;clip-path:var(--fut-clip);
-  background:linear-gradient(170deg,var(--fc-bg1) 0%,var(--fc-bg2) 55%,var(--fc-bg3) 100%);
+  position:absolute;top:5px;right:5px;bottom:5px;left:5px;clip-path:var(--fut-clip);
+  background:radial-gradient(120% 90% at 50% 8%,var(--fc-bg1) 0%,var(--fc-bg2) 55%,var(--fc-bg3) 100%);
   display:flex;flex-direction:column;align-items:center;
-  padding:8% 10% 0;
+  padding:0 9%;overflow:hidden;
 }
-.futcard.rarity-bronze{--fc-edge1:#8C5A2E;--fc-edge2:#4A3016;--fc-bg1:#3D2A1A;--fc-bg2:#2B1D12;--fc-bg3:#170F09;--fc-glow:rgba(196,138,78,.25);--fc-accent:#E0A667;}
-.futcard.rarity-silver{--fc-edge1:#B9C4CC;--fc-edge2:#5C666D;--fc-bg1:#3A4048;--fc-bg2:#262B30;--fc-bg3:#14171A;--fc-glow:rgba(198,208,216,.25);--fc-accent:#E4ECF1;}
-.futcard.rarity-gold{--fc-edge1:var(--gold-light);--fc-edge2:#7A5A00;--fc-bg1:#4A3400;--fc-bg2:#2E2000;--fc-bg3:#130D00;--fc-glow:var(--gold-glow);--fc-accent:var(--gold-light);}
-.futcard.rarity-icon{--fc-edge1:#FFE9A8;--fc-edge2:#B98A2E;--fc-bg1:#3A0A12;--fc-bg2:#1D1300;--fc-bg3:#001B26;--fc-glow:rgba(0,200,255,.3);--fc-accent:#FFFFFF;}
+.futcard.rarity-bronze{--fc-hi:#E8B27E;--fc-mid:#A6693A;--fc-lo:#5E3418;--fc-bg1:#F1DCC2;--fc-bg2:#E4C49B;--fc-bg3:#D2A876;--fc-glow:rgba(166,105,58,.35);--fc-accent:#5E3418;--fc-text2:#8A6444;}
+.futcard.rarity-silver{--fc-hi:#F5F8FA;--fc-mid:#AEB9C2;--fc-lo:#616B73;--fc-bg1:#F2F5F7;--fc-bg2:#DEE4E8;--fc-bg3:#C6CED4;--fc-glow:rgba(120,135,145,.3);--fc-accent:#333B42;--fc-text2:#6B747C;}
+.futcard.rarity-gold{--fc-hi:#FCEFB4;--fc-mid:#D9AC3F;--fc-lo:#8A6314;--fc-bg1:#F6E9C2;--fc-bg2:#EAD497;--fc-bg3:#DBBC71;--fc-glow:rgba(200,158,55,.4);--fc-accent:#4A3204;--fc-text2:#8A6B2E;}
+.futcard.rarity-icon{--fc-hi:#FFF3CC;--fc-mid:#D9AC3F;--fc-lo:#7A5A10;--fc-bg1:#232323;--fc-bg2:#141414;--fc-bg3:#050505;--fc-glow:rgba(217,172,63,.45);--fc-accent:#F3D989;--fc-text2:#B79A5C;}
 .futcard.rarity-icon .futcard-inner::before{
-  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  content:'';position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none;z-index:0;
   background:linear-gradient(120deg,var(--red-light),var(--gold-light),var(--ice),var(--red-light));
-  background-size:300% 300%;opacity:.14;animation:iconShift 6s ease infinite;
+  background-size:300% 300%;opacity:.10;animation:iconShift 6s ease infinite;
 }
 @keyframes iconShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-.futcard-topbar{width:100%;display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:2}
-.futcard-rank{display:flex;flex-direction:column;align-items:center;line-height:1}
-.futcard-ovr{font-size:30px;font-weight:900;color:var(--fc-accent);letter-spacing:-1px;text-shadow:0 0 14px var(--fc-glow)}
-.futcard-pos{font-size:11px;font-weight:800;color:var(--fc-accent);letter-spacing:1.5px;margin-top:3px;opacity:.85}
-.futcard-rarity-badge{
-  font-size:8px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
-  padding:3px 8px;border-radius:var(--r-full);border:1px solid var(--fc-accent);color:var(--fc-accent);
-  height:fit-content;opacity:.9;
-}
 .futcard-photo-wrap{
-  width:96px;height:96px;margin:2px 0 6px;position:relative;z-index:1;
+  position:absolute;top:2%;right:-8%;width:76%;height:39%;z-index:1;
 }
 .futcard-photo{
-  width:100%;height:100%;object-fit:cover;
-  -webkit-mask-image:radial-gradient(circle,#000 58%,transparent 78%);
-  mask-image:radial-gradient(circle,#000 58%,transparent 78%);
+  width:100%;height:100%;object-fit:cover;object-position:50% 20%;
+  filter:grayscale(.9) contrast(1.08) brightness(1.03) sepia(.08);
+  -webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent 92%),radial-gradient(120% 100% at 70% 30%,#000 60%,transparent 85%);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to bottom,#000 55%,transparent 92%),radial-gradient(120% 100% at 70% 30%,#000 60%,transparent 85%);
+  mask-composite:intersect;
+}
+.futcard-leftcol{position:absolute;top:6%;left:9%;z-index:2;display:flex;flex-direction:column;align-items:center;gap:5px}
+.futcard-ovr{font-size:30px;font-weight:900;color:var(--fc-accent);letter-spacing:-1px;line-height:1}
+.futcard-pos{font-size:12px;font-weight:800;color:var(--fc-accent);letter-spacing:1px;opacity:.9}
+.futcard-flag{font-size:15px;line-height:1;margin-top:2px}
+.futcard-lang-badge{
+  width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:800;color:#fff;margin-top:2px;border:1px solid rgba(0,0,0,.25);
+}
+.futcard-rarity-badge{
+  position:absolute;top:0;right:0;z-index:3;
+  font-size:8px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+  padding:3px 8px;border-radius:var(--r-full);border:1px solid var(--fc-accent);color:var(--fc-accent);
+  opacity:.75;
 }
 .futcard-name{
-  width:100%;text-align:center;font-size:15px;font-weight:800;color:#fff;letter-spacing:.5px;
-  text-transform:uppercase;margin-bottom:1px;position:relative;z-index:2;
+  width:100%;text-align:center;font-size:16px;font-weight:900;color:var(--fc-accent);letter-spacing:.5px;
+  text-transform:uppercase;margin-top:50%;margin-bottom:2px;position:relative;z-index:2;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
-.futcard-login{width:100%;text-align:center;font-size:10px;color:rgba(255,255,255,.5);margin-bottom:8px;position:relative;z-index:2}
-.futcard-divider{width:70%;height:1px;background:linear-gradient(90deg,transparent,var(--fc-accent),transparent);opacity:.5;margin-bottom:10px;position:relative;z-index:2}
-.futcard-stats{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px 10px;position:relative;z-index:2}
-.futcard-stat-row{display:flex;align-items:center;justify-content:center;gap:7px}
-.futcard-stat-val{font-size:15px;font-weight:800;color:var(--fc-accent);min-width:20px;text-align:right}
-.futcard-stat-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:1px}
-.futcard-winner-glow .futcard-border{background:linear-gradient(155deg,var(--win) 0%,var(--fc-edge2) 45%,var(--win) 100%)}
+.futcard-login{width:100%;text-align:center;font-size:10px;color:var(--fc-text2);margin-bottom:8px;position:relative;z-index:2}
+.futcard-divider{width:78%;height:1px;background:linear-gradient(90deg,transparent,var(--fc-accent),transparent);opacity:.55;margin-bottom:10px;position:relative;z-index:2}
+.futcard-stats{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px 4px;position:relative;z-index:2}
+.futcard-stat-row{display:flex;align-items:baseline;justify-content:center;gap:7px}
+.futcard-stat-val{font-size:16px;font-weight:900;color:var(--fc-accent);min-width:20px;text-align:right}
+.futcard-stat-label{font-size:10px;font-weight:700;color:var(--fc-text2);letter-spacing:1px}
+.futcard-winner-glow .futcard-border{background:linear-gradient(155deg,var(--win) 0%,var(--fc-mid) 30%,var(--win) 60%,var(--fc-mid) 80%,var(--win) 100%)}
 @media(max-width:720px){.futcard-grid{grid-template-columns:1fr}}
 
 /* ── Power Score ── */
@@ -836,21 +845,64 @@ function positionFromStats(s) {
   const map = { sho: 'ST', pas: 'CAM', dri: 'LW', pac: 'RB', def: 'CB', phy: 'CDM' };
   return Object.entries(map).map(([k, pos]) => [pos, s[k]]).sort((a, b) => b[1] - a[1])[0][0];
 }
+// Best-effort flag from the user's own self-disclosed GitHub "location" text.
+// Falls back to no flag rather than guessing when nothing matches.
+const COUNTRY_FLAGS = [
+  [/\b(usa|u\.s\.a|united states|california|new york|san francisco|seattle|austin|boston|chicago|texas|nyc)\b/i,'🇺🇸'],
+  [/\b(india|bangalore|bengaluru|mumbai|delhi|hyderabad|pune|chennai|nashik|kolkata|gurgaon|noida)\b/i,'🇮🇳'],
+  [/\b(united kingdom|england|london|manchester|scotland|wales|\buk\b)\b/i,'🇬🇧'],
+  [/\b(germany|berlin|munich|hamburg)\b/i,'🇩🇪'],
+  [/\b(france|paris|lyon)\b/i,'🇫🇷'],
+  [/\b(canada|toronto|vancouver|montreal|ottawa)\b/i,'🇨🇦'],
+  [/\b(australia|sydney|melbourne|brisbane)\b/i,'🇦🇺'],
+  [/\b(japan|tokyo|osaka|kyoto)\b/i,'🇯🇵'],
+  [/\b(china|beijing|shanghai|shenzhen)\b/i,'🇨🇳'],
+  [/\b(brazil|s(a|ã)o paulo|rio de janeiro)\b/i,'🇧🇷'],
+  [/\b(netherlands|amsterdam|rotterdam)\b/i,'🇳🇱'],
+  [/\bsingapore\b/i,'🇸🇬'],
+  [/\b(spain|madrid|barcelona)\b/i,'🇪🇸'],
+  [/\b(italy|rome|milan)\b/i,'🇮🇹'],
+  [/\b(russia|moscow)\b/i,'🇷🇺'],
+  [/\b(south korea|seoul)\b/i,'🇰🇷'],
+  [/\b(mexico city|mexico)\b/i,'🇲🇽'],
+  [/\b(poland|warsaw)\b/i,'🇵🇱'],
+  [/\b(sweden|stockholm)\b/i,'🇸🇪'],
+  [/\b(switzerland|zurich|geneva)\b/i,'🇨🇭'],
+  [/\b(indonesia|jakarta)\b/i,'🇮🇩'],
+  [/\b(pakistan|karachi|lahore)\b/i,'🇵🇰'],
+  [/\b(nigeria|lagos)\b/i,'🇳🇬'],
+  [/\b(uae|dubai|abu dhabi|united arab emirates)\b/i,'🇦🇪'],
+  [/\b(israel|tel aviv)\b/i,'🇮🇱'],
+  [/\b(ukraine|kyiv|kiev)\b/i,'🇺🇦'],
+  [/\b(turkey|istanbul)\b/i,'🇹🇷'],
+  [/\b(vietnam|hanoi|ho chi minh)\b/i,'🇻🇳'],
+  [/\b(philippines|manila)\b/i,'🇵🇭'],
+  [/\b(ireland|dublin)\b/i,'🇮🇪'],
+  [/\b(portugal|lisbon)\b/i,'🇵🇹'],
+  [/\b(argentina|buenos aires)\b/i,'🇦🇷'],
+];
+function flagFromLocation(loc) {
+  if (!loc) return null;
+  for (const [re, flag] of COUNTRY_FLAGS) { if (re.test(loc)) return flag; }
+  return null;
+}
 function renderFutCard(d, fut, isW) {
   const rarity = rarityFromOvr(fut.ovr);
   const pos = positionFromStats(fut);
+  const flag = flagFromLocation(d.location);
+  const topLang = d.languages?.[0]?.name;
   return `<div class="futcard rarity-${rarity}${isW ? ' futcard-winner-glow' : ''}">
     <div class="futcard-border"></div>
     <div class="futcard-inner">
-      <div class="futcard-topbar">
-        <div class="futcard-rank">
-          <div class="futcard-ovr">${fut.ovr}</div>
-          <div class="futcard-pos">${pos}</div>
-        </div>
-        <span class="futcard-rarity-badge">${RARITY_LABEL[rarity]}</span>
-      </div>
+      <span class="futcard-rarity-badge">${RARITY_LABEL[rarity]}</span>
       <div class="futcard-photo-wrap">
         <img class="futcard-photo" src="${esc(d.avatar)}" alt="${esc(d.login)}">
+      </div>
+      <div class="futcard-leftcol">
+        <div class="futcard-ovr">${fut.ovr}</div>
+        <div class="futcard-pos">${pos}</div>
+        ${flag ? `<div class="futcard-flag">${flag}</div>` : ''}
+        ${topLang ? `<div class="futcard-lang-badge" style="background:${lc(topLang)}" title="${esc(topLang)}">${esc(topLang[0])}</div>` : ''}
       </div>
       <div class="futcard-name">${esc(d.name)}</div>
       <div class="futcard-login">@${esc(d.login)}</div>
