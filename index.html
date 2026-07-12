@@ -464,12 +464,10 @@ body::after{
 .futcard-photo{
   width:100%;height:100%;object-fit:cover;object-position:50% 20%;
   filter:grayscale(.9) contrast(1.08) brightness(1.03) sepia(.08);
-  -webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent 92%),radial-gradient(120% 100% at 70% 30%,#000 60%,transparent 85%);
-  -webkit-mask-composite:source-in;
-  mask-image:linear-gradient(to bottom,#000 55%,transparent 92%),radial-gradient(120% 100% at 70% 30%,#000 60%,transparent 85%);
-  mask-composite:intersect;
+  -webkit-mask-image:radial-gradient(ellipse 85% 90% at 65% 35%,#000 45%,transparent 88%);
+  mask-image:radial-gradient(ellipse 85% 90% at 65% 35%,#000 45%,transparent 88%);
 }
-.futcard-leftcol{position:absolute;top:6%;left:9%;z-index:2;display:flex;flex-direction:column;align-items:center;gap:5px}
+.futcard-leftcol{position:absolute;top:6%;left:17%;z-index:2;display:flex;flex-direction:column;align-items:center;gap:5px}
 .futcard-ovr{font-size:30px;font-weight:900;color:var(--fc-accent);letter-spacing:-1px;line-height:1}
 .futcard-pos{font-size:12px;font-weight:800;color:var(--fc-accent);letter-spacing:1px;opacity:.9}
 .futcard-flag{font-size:15px;line-height:1;margin-top:2px}
