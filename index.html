@@ -445,8 +445,7 @@ body::after{
 .futcard-inner{
   position:absolute;top:5px;right:5px;bottom:5px;left:5px;clip-path:var(--fut-clip);
   background:radial-gradient(120% 90% at 50% 8%,var(--fc-bg1) 0%,var(--fc-bg2) 55%,var(--fc-bg3) 100%);
-  display:flex;flex-direction:column;align-items:center;
-  padding:0 9%;overflow:hidden;
+  overflow:hidden;
 }
 .futcard.rarity-bronze{--fc-hi:#E8B27E;--fc-mid:#A6693A;--fc-lo:#5E3418;--fc-bg1:#F1DCC2;--fc-bg2:#E4C49B;--fc-bg3:#D2A876;--fc-glow:rgba(166,105,58,.35);--fc-accent:#5E3418;--fc-text2:#8A6444;}
 .futcard.rarity-silver{--fc-hi:#F5F8FA;--fc-mid:#AEB9C2;--fc-lo:#616B73;--fc-bg1:#F2F5F7;--fc-bg2:#DEE4E8;--fc-bg3:#C6CED4;--fc-glow:rgba(120,135,145,.3);--fc-accent:#333B42;--fc-text2:#6B747C;}
@@ -459,15 +458,15 @@ body::after{
 }
 @keyframes iconShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 .futcard-photo-wrap{
-  position:absolute;top:2%;right:-8%;width:76%;height:39%;z-index:1;
+  position:absolute;top:0;right:-8%;width:74%;height:29%;z-index:1;
 }
 .futcard-photo{
   width:100%;height:100%;object-fit:cover;object-position:50% 20%;
   filter:grayscale(.9) contrast(1.08) brightness(1.03) sepia(.08);
-  -webkit-mask-image:radial-gradient(ellipse 85% 90% at 65% 35%,#000 45%,transparent 88%);
-  mask-image:radial-gradient(ellipse 85% 90% at 65% 35%,#000 45%,transparent 88%);
+  -webkit-mask-image:radial-gradient(ellipse 68% 62% at 58% 22%,#000 28%,transparent 70%);
+  mask-image:radial-gradient(ellipse 68% 62% at 58% 22%,#000 28%,transparent 70%);
 }
-.futcard-leftcol{position:absolute;top:6%;left:17%;z-index:2;display:flex;flex-direction:column;align-items:center;gap:5px}
+.futcard-leftcol{position:absolute;top:4%;left:17%;z-index:2;display:flex;flex-direction:column;align-items:center;gap:5px}
 .futcard-ovr{font-size:30px;font-weight:900;color:var(--fc-accent);letter-spacing:-1px;line-height:1}
 .futcard-pos{font-size:12px;font-weight:800;color:var(--fc-accent);letter-spacing:1px;opacity:.9}
 .futcard-flag{font-size:15px;line-height:1;margin-top:2px}
@@ -482,18 +481,19 @@ body::after{
   opacity:.75;
 }
 .futcard-name{
-  width:100%;text-align:center;font-size:16px;font-weight:900;color:var(--fc-accent);letter-spacing:.5px;
-  text-transform:uppercase;margin-top:50%;margin-bottom:2px;position:relative;z-index:2;
+  position:absolute;top:33%;left:9%;right:9%;text-align:center;font-size:16px;font-weight:900;color:var(--fc-accent);letter-spacing:.5px;
+  text-transform:uppercase;z-index:2;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
-.futcard-login{width:100%;text-align:center;font-size:10px;color:var(--fc-text2);margin-bottom:8px;position:relative;z-index:2}
-.futcard-divider{width:78%;height:1px;background:linear-gradient(90deg,transparent,var(--fc-accent),transparent);opacity:.55;margin-bottom:10px;position:relative;z-index:2}
-.futcard-stats{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px 4px;position:relative;z-index:2}
+.futcard-login{position:absolute;top:39%;left:9%;right:9%;text-align:center;font-size:10px;color:var(--fc-text2);z-index:2}
+.futcard-divider{position:absolute;top:43.5%;left:11%;right:11%;height:1px;background:linear-gradient(90deg,transparent,var(--fc-accent),transparent);opacity:.55;z-index:2}
+.futcard-stats{position:absolute;top:48%;left:9%;right:9%;display:grid;grid-template-columns:1fr 1fr;gap:7px 4px;z-index:2}
 .futcard-stat-row{display:flex;align-items:baseline;justify-content:center;gap:7px}
 .futcard-stat-val{font-size:16px;font-weight:900;color:var(--fc-accent);min-width:20px;text-align:right}
 .futcard-stat-label{font-size:10px;font-weight:700;color:var(--fc-text2);letter-spacing:1px}
 .futcard-winner-glow .futcard-border{background:linear-gradient(155deg,var(--win) 0%,var(--fc-mid) 30%,var(--win) 60%,var(--fc-mid) 80%,var(--win) 100%)}
 @media(max-width:720px){.futcard-grid{grid-template-columns:1fr}}
+
 
 /* ── Power Score ── */
 .power-section{margin-bottom:24px}
