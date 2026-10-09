@@ -5,76 +5,104 @@
 <meta name="description" content="Turn any GitHub profile into a FIFA Ultimate Team card, then battle two developers head-to-head.">
 <link rel="canonical" href="https://github-fighter.vercel.app/">
 <meta property="og:title" content="GitFut ⚽ — your GitHub as a FUT card"><meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500&family=Barlow+Condensed:wght@600;700;800&family=Bodoni+Moda:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-:root{--bg:#07080c;--panel:#10121a;--line:#1e2230;--tx:#f4f5f8;--mut:#8a90a2;--acc:#f5c542;--red:#ff4d5e;--ice:#3dd9ff;--win:#2dff9a}
+:root{--bg:#0b0a08;--bone:#efe6d2;--gold:#c9a24b;--gold2:#f3dc92;--mut:#8f8672;--line:#2a261d;--serif:'Bodoni Moda',Georgia,serif;--cond:'Barlow Condensed','Arial Narrow',sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font:15px/1.5 system-ui,-apple-system,Segoe UI,Inter,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;
- background-image:radial-gradient(60% 40% at 50% -10%,#f5c54222,transparent),radial-gradient(40% 30% at 0 70%,#ff4d5e18,transparent),radial-gradient(40% 30% at 100% 70%,#3dd9ff18,transparent)}
-header{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#07080ccc;backdrop-filter:blur(12px);z-index:5}
-.brand{font-weight:900;letter-spacing:2px;text-transform:uppercase}.brand b{color:var(--acc)}
-button{font:inherit;cursor:pointer;border:0}
-.ghost{background:#ffffff08;border:1px solid var(--line);color:var(--mut);padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-.ghost:hover{color:var(--acc);border-color:var(--acc)}
-main{max-width:1000px;margin:0 auto;padding:40px 20px 80px}
-h1{font-size:clamp(30px,6vw,52px);line-height:1.05;text-align:center;font-weight:900}
-h1 span{background:linear-gradient(90deg,var(--acc),var(--red));-webkit-background-clip:text;color:transparent}
-.sub{text-align:center;color:var(--mut);margin:12px 0 28px}
-.tabs{display:flex;gap:6px;justify-content:center;margin-bottom:18px}
-.tab{padding:8px 18px;border-radius:999px;background:var(--panel);color:var(--mut);border:1px solid var(--line);font-weight:700}
-.tab.on{background:var(--acc);color:#000;border-color:var(--acc)}
-.form{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:720px;margin:0 auto}
-input{flex:1;min-width:150px;padding:13px 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--tx);font:inherit}
-input:focus{outline:2px solid var(--acc);border-color:transparent}
-.go{padding:13px 26px;border-radius:10px;background:linear-gradient(135deg,var(--acc),#ff9d2e);color:#000;font-weight:900;text-transform:uppercase;letter-spacing:1px}
-.go:disabled{opacity:.5;cursor:wait}
-.err{color:var(--red);text-align:center;margin-top:14px;min-height:20px}
-.stage{display:flex;gap:28px;justify-content:center;flex-wrap:wrap;margin-top:30px}
-/* FUT card */
-.fc{width:260px;height:380px;position:relative;border-radius:22px 22px 60px 60px;padding:3px;color:var(--ink);animation:rise .6s both;
- clip-path:polygon(0 6%,10% 0,90% 0,100% 6%,100% 88%,50% 100%,0 88%)}
-.fc.bronze{--ink:#3a1f0c;background:linear-gradient(150deg,#e8a46b,#9a5a2b 60%,#e8a46b)}
-.fc.silver{--ink:#20242c;background:linear-gradient(150deg,#f4f6fa,#8f98a8 60%,#f4f6fa)}
-.fc.gold{--ink:#3b2a00;background:linear-gradient(150deg,#ffe58a,#c99a1b 60%,#ffe58a)}
-.fc.icon{--ink:#fff;background:linear-gradient(150deg,#7df3ff,#6a4dff 55%,#ff6bd5)}
-.fc.winner{filter:drop-shadow(0 0 22px var(--win))}
-.fc-in{height:100%;clip-path:inherit;padding:26px 22px 0;position:relative;background:linear-gradient(160deg,#ffffff30,#00000018),inherit}
-.fc-ovr{position:absolute;left:30px;top:44px;font-size:44px;font-weight:900;line-height:1}
-.fc-pos{position:absolute;left:30px;top:90px;font-weight:800;letter-spacing:1px}
-.fc-flag{position:absolute;left:30px;top:116px;font-size:22px}
-.fc-lang{position:absolute;left:30px;top:150px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:900;color:#000}
-.fc-rar{position:absolute;right:34px;top:30px;font-size:10px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;opacity:.75}
-.fc-img{position:absolute;right:26px;top:48px;width:132px;height:132px;border-radius:50%;object-fit:cover;border:3px solid #ffffff66}
-.fc-name{position:absolute;top:196px;left:0;right:0;text-align:center;font-weight:900;font-size:19px;text-transform:uppercase;padding:0 26px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fc-login{position:absolute;top:220px;left:0;right:0;text-align:center;font-size:12px;opacity:.7}
-.fc-st{position:absolute;top:248px;left:30px;right:30px;display:grid;grid-template-columns:1fr 1fr;gap:2px 22px;border-top:1px solid #00000033;padding-top:8px}
-.fc-st div{display:flex;gap:8px;align-items:baseline;font-weight:900;font-size:19px}.fc-st small{font-size:12px;opacity:.7;font-weight:700}
-@keyframes rise{from{opacity:0;transform:translateY(30px) rotateY(25deg)}}
+body{font:400 16px/1.55 'Barlow',system-ui,sans-serif;color:var(--bone);background:var(--bg);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(560px circle at var(--sx,50%) var(--sy,18%),#c9a24b22,transparent 70%)}
+.grain{position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.08;mix-blend-mode:overlay;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.beams{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.beams b{position:absolute;top:-25%;width:38vw;height:150%;background:linear-gradient(180deg,#f3dc9230,transparent 75%);clip-path:polygon(42% 0,58% 0,100% 100%,0 100%);filter:blur(24px);transform-origin:50% 0;animation:sway 16s ease-in-out infinite alternate}
+.beams b:first-child{left:2%;--r:16deg}.beams b:last-child{right:2%;--r:-16deg;animation-delay:-8s}
+@keyframes sway{from{transform:rotate(calc(var(--r) - 7deg))}to{transform:rotate(calc(var(--r) + 7deg))}}
+header,main,.ticker{position:relative;z-index:2}
+header{display:flex;justify-content:space-between;align-items:center;padding:24px 5vw}
+.brand{font:500 24px var(--serif);letter-spacing:.32em}.brand em{font-style:italic;color:var(--gold)}
+header nav{display:flex;gap:10px;align-items:center}
+.ghost{background:none;border:1px solid var(--line);color:var(--bone);font:600 12px var(--cond);letter-spacing:.3em;text-transform:uppercase;padding:11px 20px;cursor:pointer;transition:.3s}
+.ghost:hover{border-color:var(--gold);color:var(--gold2);background:#c9a24b14}
+#who{border:0;color:var(--mut);padding:0}
+.ticker{overflow:hidden;border-block:1px solid var(--line);padding:10px 0;font:600 13px var(--cond);letter-spacing:.4em;text-transform:uppercase;color:var(--mut)}
+.tk{display:flex;width:max-content;animation:tk 45s linear infinite}.tk span{padding:0 22px}.tk span:nth-child(even){color:var(--gold)}
+@keyframes tk{to{transform:translateX(-50%)}}
+main{max-width:1040px;margin:0 auto;padding:72px 24px 120px}
+.eyebrow{text-align:center;font:600 13px var(--cond);letter-spacing:.55em;text-transform:uppercase;color:var(--gold);margin-bottom:26px}
+h1{font:500 clamp(46px,9vw,118px)/.96 var(--serif);text-align:center;letter-spacing:-.02em}
+.w{display:inline-block;overflow:hidden;vertical-align:top;padding:0 .06em .14em}.w i{display:inline-block;font-style:normal}
+.f i{font-style:italic;color:transparent;background:linear-gradient(100deg,#9c7a2b,#f3dc92 40%,#c9a24b 60%,#f3dc92);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;animation:foil 6s linear infinite}
+@keyframes foil{to{background-position:-200% 0}}
+.sub{text-align:center;color:var(--mut);font-size:18px;max-width:520px;margin:26px auto 0}
+.tabs{display:flex;justify-content:center;gap:38px;margin:52px 0 30px}
+.tab{background:none;border:0;border-bottom:1px solid transparent;color:var(--mut);font:600 13px var(--cond);letter-spacing:.38em;text-transform:uppercase;padding:6px 0;cursor:pointer;transition:.3s}
+.tab.on{color:var(--gold2);border-color:var(--gold)}
+.form{display:flex;gap:28px;flex-wrap:wrap;justify-content:center;align-items:flex-end;max-width:860px;margin:0 auto}
+input{flex:1;min-width:210px;background:none;border:0;border-bottom:1px solid var(--line);color:var(--bone);font:italic 500 28px var(--serif);text-align:center;padding:8px 2px;transition:border-color .3s}
+input::placeholder{color:#4d463a}input:focus{outline:0;border-color:var(--gold)}
+.go{position:relative;overflow:hidden;border:0;cursor:pointer;padding:17px 40px;font:700 15px var(--cond);letter-spacing:.32em;text-transform:uppercase;color:#1a1305;background:linear-gradient(115deg,#a98332,#f3dc92 45%,#c9a24b 70%,#f3dc92);clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%)}
+.go::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#fffa 50%,transparent 70%);transform:translateX(-130%);transition:transform .8s}
+.go:hover::after{transform:translateX(130%)}.go:disabled{opacity:.6;cursor:wait}
+:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
+.err{text-align:center;margin-top:20px;min-height:22px;color:#e58b79;font:600 14px var(--cond);letter-spacing:.2em;text-transform:uppercase}
+#prog{position:fixed;top:0;left:0;right:0;height:2px;background:var(--gold2);box-shadow:0 0 14px var(--gold2);transform:scaleX(0);opacity:0;z-index:60}
+#flash{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:40;background:radial-gradient(circle,#fff4cc,#f3dc9266 40%,transparent 72%)}
+.stage{display:flex;gap:min(6vw,70px);justify-content:center;align-items:center;flex-wrap:wrap;margin-top:70px;perspective:1100px}
+.slot{transform-style:preserve-3d}.slot.winner{filter:drop-shadow(0 0 28px #f3dc9277)}
+.vs{font:italic 500 58px var(--serif);color:var(--gold)}
+/* card */
+.fc{width:260px;height:380px;position:relative;padding:3px;color:var(--ink);clip-path:polygon(0 6%,10% 0,90% 0,100% 6%,100% 88%,50% 100%,0 88%)}
+.fc.bronze{--ink:#2b1608;background:linear-gradient(150deg,#e7a56e,#8d5128 55%,#d98f55)}
+.fc.silver{--ink:#1d2128;background:linear-gradient(150deg,#f4f5f7,#9aa1ad 55%,#e8eaee)}
+.fc.gold{--ink:#2e2100;background:linear-gradient(150deg,#fbe28a,#b98a1d 55%,#f6d46b)}
+.fc.icon{--ink:#f3dc92;background:linear-gradient(150deg,#f3dc92,#7a5c1c 50%,#f3dc92)}
+.fc-in{height:100%;clip-path:inherit;overflow:hidden;padding:26px 22px 0;position:relative;background:linear-gradient(160deg,#ffffff3a,#0000001f)}
+.fc.icon .fc-in{background:radial-gradient(120% 80% at 30% 0,#2b2a33,#0c0c10 70%)}
+.fc-foil{position:absolute;inset:0;opacity:0;mix-blend-mode:color-dodge;transition:opacity .4s;pointer-events:none;background:radial-gradient(circle at var(--mx,50%) var(--my,30%),#fffd,transparent 45%),conic-gradient(from 90deg at var(--mx,50%) var(--my,50%),#ff8aa0,#ffe08a,#8affc0,#8ad0ff,#c8a0ff,#ff8aa0)}
+.fc:hover .fc-foil{opacity:.45}.fc.icon:hover .fc-foil{opacity:.75}
+.sweep{position:absolute;top:-10%;bottom:-10%;left:0;width:34%;background:linear-gradient(100deg,transparent,#fffb,transparent);transform:translateX(-200%) skewX(-20deg);pointer-events:none}
+.fc-ovr{position:absolute;left:30px;top:40px;font:800 58px/1 var(--cond)}
+.fc-pos{position:absolute;left:31px;top:98px;font:700 19px var(--cond);letter-spacing:.14em}
+.fc-flag{position:absolute;left:31px;top:126px;font-size:22px}
+.fc-lang{position:absolute;left:31px;top:160px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:800 12px var(--cond);color:#000}
+.fc-rar{position:absolute;right:36px;top:28px;font:700 11px var(--cond);letter-spacing:.3em;text-transform:uppercase;opacity:.75}
+.fc-img{position:absolute;right:26px;top:48px;width:132px;height:132px;border-radius:50%;object-fit:cover;border:2px solid color-mix(in srgb,var(--ink) 45%,transparent)}
+.fc-name{position:absolute;top:196px;left:0;right:0;text-align:center;font:800 23px var(--cond);letter-spacing:.06em;text-transform:uppercase;padding:0 26px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fc-login{position:absolute;top:224px;left:0;right:0;text-align:center;font:500 12px var(--cond);letter-spacing:.2em;opacity:.7}
+.fc-st{position:absolute;top:252px;left:34px;right:34px;display:grid;grid-template-columns:1fr 1fr;gap:0 26px;border-top:1px solid color-mix(in srgb,var(--ink) 35%,transparent);padding-top:8px}
+.fc-st div{display:flex;gap:8px;align-items:baseline;font:700 22px var(--cond)}.fc-st small{font-size:13px;letter-spacing:.1em;opacity:.7}
 /* battle */
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin:28px auto 0;max-width:720px}
-.verdict{text-align:center;font-size:22px;font-weight:900;margin-bottom:14px}.verdict em{color:var(--win);font-style:normal}
-.row{display:grid;grid-template-columns:1fr 70px 1fr;gap:10px;align-items:center;margin:9px 0;font-size:13px}
-.row .lab{text-align:center;color:var(--mut);font-weight:800;letter-spacing:1px}
-.bar{height:10px;background:#ffffff0d;border-radius:99px;overflow:hidden;display:flex}
-.bar.l{justify-content:flex-end}.bar i{display:block;height:100%;width:0;transition:width .9s cubic-bezier(.2,.8,.2,1);background:var(--mut);border-radius:99px}
-.bar i.w{background:var(--win)}
-.num{display:flex;justify-content:space-between;font-weight:800;margin-bottom:3px}
-.tops{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px;font-size:13px}
-.tops a{color:var(--ice);text-decoration:none;display:block}.tops p{color:var(--mut);font-size:12px}
-.actions{display:flex;gap:8px;justify-content:center;margin-top:20px;flex-wrap:wrap}
-.hist{margin-top:34px;text-align:center;color:var(--mut);font-size:13px}.hist button{margin:4px;background:var(--panel);color:var(--tx);border:1px solid var(--line);padding:5px 12px;border-radius:99px}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--acc);color:#000;padding:9px 18px;border-radius:99px;font-weight:800;opacity:0;transition:.3s;pointer-events:none}.toast.on{opacity:1}
-@media(max-width:600px){.row{grid-template-columns:1fr 54px 1fr}.tops{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.panel{max-width:780px;margin:80px auto 0}
+.verdict{font:italic 500 clamp(32px,5.5vw,56px)/1.05 var(--serif);text-align:center}.verdict em{color:var(--gold2)}
+.verdict small{display:block;font:600 12px var(--cond);font-style:normal;letter-spacing:.55em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.panel>p{font:600 13px var(--cond)!important;letter-spacing:.25em;text-transform:uppercase;margin:16px 0 34px!important}
+.row{display:grid;grid-template-columns:1fr 90px 1fr;gap:18px;align-items:center;margin:16px 0}
+.row .lab{text-align:center;font:600 12px var(--cond);letter-spacing:.35em;color:var(--mut)}
+.num{display:flex;justify-content:space-between;font:700 22px var(--cond);margin-bottom:5px;min-height:28px}
+.bar{height:3px;background:#ffffff14;display:flex}.bar.l{justify-content:flex-end}
+.bar i{display:block;height:100%;width:0;background:#6d6551}.bar i.w{background:linear-gradient(90deg,#8a6a22,#f3dc92);box-shadow:0 0 14px #f3dc9288}
+.tops{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:50px;padding-top:30px;border-top:1px solid var(--line);font-size:14px}
+.tops b{font:italic 500 22px var(--serif);display:block;margin-bottom:8px}
+.tops a{display:block;color:var(--gold2);text-decoration:none;font:600 15px var(--cond);letter-spacing:.08em;margin-top:8px}.tops p{color:var(--mut);font-size:13px}
+.actions{display:flex;gap:12px;justify-content:center;margin-top:46px;flex-wrap:wrap}
+.hist{margin-top:100px;text-align:center;font:600 12px var(--cond);letter-spacing:.3em;text-transform:uppercase;color:var(--mut)}
+.hist button{margin:6px 8px;background:none;border:0;border-bottom:1px solid var(--line);color:var(--bone);padding:3px 2px;font:inherit;letter-spacing:.15em;text-transform:none;cursor:pointer;transition:.3s}.hist button:hover{color:var(--gold2);border-color:var(--gold)}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--gold2);color:#1a1305;padding:12px 24px;font:700 13px var(--cond);letter-spacing:.25em;text-transform:uppercase;opacity:0;transition:.3s;pointer-events:none;z-index:70}.toast.on{opacity:1}
+@media(max-width:640px){.row{grid-template-columns:1fr 56px 1fr;gap:10px}.tops{grid-template-columns:1fr}.vs{font-size:40px}}
 </style></head><body>
-<header><div class="brand">Git<b>Fut</b> ⚽</div>
- <div><span id="who" class="ghost" style="display:none;margin-right:6px"></span><button class="ghost" id="auth" onclick="authClick()">Log in with GitHub</button></div></header>
+<div class="grain"></div><div class="beams"><b></b><b></b></div><div id="prog"></div><div id="flash"></div>
+<header><div class="brand">GIT<em>FUT</em></div><nav><span id="who" class="ghost" style="display:none"></span><button class="ghost" id="auth" onclick="authClick()">Log in with GitHub</button></nav></header>
+<div class="ticker"><div class="tk" id="tk"></div></div>
 <main>
- <h1>Your GitHub, as a <span>FUT card</span></h1>
- <p class="sub">Generate your card, or battle two developers head-to-head.</p>
+ <div class="eyebrow">Matchday · GitHub Edition</div>
+ <h1><span class="w"><i>Your</i></span> <span class="w"><i>GitHub,</i></span><br><span class="w"><i>as</i></span> <span class="w"><i>a</i></span> <span class="w f"><i>FUT&nbsp;card</i></span></h1>
+ <p class="sub">Generate your card, or settle it on the pitch. Two developers, six attributes, one winner.</p>
  <div class="tabs"><button class="tab on" data-m="card">My Card</button><button class="tab" data-m="battle">Battle</button></div>
- <div class="form"><input id="u1" placeholder="GitHub username" autocomplete="off" spellcheck="false">
-  <input id="u2" placeholder="Opponent username" autocomplete="off" spellcheck="false" style="display:none">
+ <div class="form"><input id="u1" placeholder="your username" autocomplete="off" spellcheck="false" aria-label="GitHub username">
+  <input id="u2" placeholder="opponent" autocomplete="off" spellcheck="false" aria-label="Opponent username" style="display:none">
   <button class="go" id="go">Generate</button></div>
  <div class="err" id="err" role="alert"></div>
  <div id="out"></div><div class="hist" id="hist"></div>
@@ -98,18 +126,18 @@ const pos=s=>POS[Object.keys(POS).sort((a,b)=>s[b]-s[a])[0]];
 const FL=[[/india|bangalore|mumbai|delhi|pune|nashik|nagpur|hyderabad|chennai|kolkata/i,'🇮🇳'],[/usa|united states|california|new york|seattle|austin|boston|texas|san francisco/i,'🇺🇸'],[/\buk\b|england|london|scotland|united kingdom/i,'🇬🇧'],[/germany|berlin|munich/i,'🇩🇪'],[/france|paris/i,'🇫🇷'],[/canada|toronto|vancouver/i,'🇨🇦'],[/australia|sydney|melbourne/i,'🇦🇺'],[/japan|tokyo/i,'🇯🇵'],[/china|beijing|shanghai/i,'🇨🇳'],[/brazil|são paulo|sao paulo/i,'🇧🇷'],[/netherlands|amsterdam/i,'🇳🇱'],[/spain|madrid|barcelona/i,'🇪🇸']];
 const flag=l=>(FL.find(([r])=>r.test(l||''))||[])[1]||'';
 function card(d,f,win){const r=rar(f.ovr),tl=d.languages[0]?.name;
- return `<div class="fc ${r}${win?' winner':''}" data-login="${esc(d.login)}"><div class="fc-in">
+ return `<div class="slot${win?' winner':''}"><div class="fc ${r}" data-login="${esc(d.login)}"><div class="fc-in"><div class="fc-foil"></div><i class="sweep"></i>
  <span class="fc-rar">${r}</span><img class="fc-img" crossorigin="anonymous" src="${esc(d.avatar)}&s=264" alt="${esc(d.login)}">
  <div class="fc-ovr">${f.ovr}</div><div class="fc-pos">${pos(f)}</div><div class="fc-flag">${flag(d.location)}</div>
  ${tl?`<div class="fc-lang" style="background:${LC[tl]||'#aaa'}" title="${esc(tl)}">${esc(tl[0])}</div>`:''}
  <div class="fc-name">${esc(d.name)}</div><div class="fc-login">@${esc(d.login)}</div>
- <div class="fc-st">${['pac','dri','sho','def','pas','phy'].map(k=>`<div>${f[k]}<small>${k.toUpperCase()}</small></div>`).join('')}</div></div></div>`}
+ <div class="fc-st">${['pac','dri','sho','def','pas','phy'].map(k=>`<div>${f[k]}<small>${k.toUpperCase()}</small></div>`).join('')}</div></div></div></div>`}
 // ── API ──
 async function api(path,opt={}){const r=await fetch(API+path,{credentials:'include',headers:{'Content-Type':'application/json'},...opt});
  const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Request failed');return j}
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1800)}
 // ── Views ──
-function showCard(d){const f=fut(d);$('out').innerHTML=`<div class="stage">${card(d,f)}</div>
+function showCard(d){const f=fut(d);setTimeout(animateCard,0);$('out').innerHTML=`<div class="stage">${card(d,f)}</div>
  <div class="actions"><button class="ghost" onclick="dl('${esc(d.login)}')">⬇ Download PNG</button><button class="ghost" onclick="share()">🔗 Copy link</button>
  <button class="ghost" onclick="setMode('battle',true)">⚔ Challenge someone</button></div>`}
 const STATS=[['ovr','OVERALL'],['pac','PAC'],['sho','SHO'],['pas','PAS'],['dri','DRI'],['def','DEF'],['phy','PHY']];
@@ -119,13 +147,12 @@ function showBattle({p1,p2,winner}){const f1=fut(p1),f2=fut(p2),w=winner==='p1'?
  const top=p=>`<div><b>${esc(p.name)}</b>${p.topRepos.map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener">★ ${r.stars} ${esc(r.name)}</a><p>${esc(r.desc).slice(0,70)}</p>`).join('')||'<p>No public repos</p>'}</div>`;
  const ties=STATS.slice(1).filter(([k])=>f1[k]===f2[k]).length, w1=STATS.slice(1).filter(([k])=>f1[k]>f2[k]).length, w2=STATS.length-1-ties-w1;
  $('out').innerHTML=`<div class="stage">${card(p1,f1,w===p1)}${card(p2,f2,w===p2)}</div>
- <div class="panel"><div class="verdict">🏆 <em>${esc(w.name)}</em> wins</div>
+ <div class="panel"><div class="verdict"><small>Man of the match</small><em>${esc(w.name)}</em> wins</div>
  <p style="text-align:center;color:var(--mut);font-size:13px;margin-bottom:10px">Power score ${p1.score} vs ${p2.score} · attributes ${w1}–${w2}${ties?` (${ties} tied)`:''}</p>${rows}
  <div class="tops">${top(p1)}${top(p2)}</div></div>
  <div class="actions"><button class="ghost" onclick="share()">🔗 Copy battle link</button><button class="ghost" onclick="dl()">⬇ Download cards</button></div>`;
- requestAnimationFrame(()=>setTimeout(()=>document.querySelectorAll('.bar i').forEach(i=>i.style.width=i.dataset.w+'%'),50));
- if(w===p1||w===p2)confetti()}
-function confetti(){if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;const c=document.createElement('canvas');c.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:9';c.width=innerWidth;c.height=innerHeight;document.body.append(c);const x=c.getContext('2d'),P=[...Array(110)].map(()=>({x:Math.random()*c.width,y:-20,v:2+Math.random()*4,s:4+Math.random()*5,c:['#f5c542','#ff4d5e','#3dd9ff','#2dff9a'][Math.random()*4|0],r:Math.random()*6}));let t=0;(function f(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.y+=p.v;p.x+=Math.sin(p.y/30+p.r);x.fillStyle=p.c;x.fillRect(p.x,p.y,p.s,p.s*1.6)});if(++t<150)requestAnimationFrame(f);else c.remove()})()}
+ setTimeout(()=>animateBattle(w===p1?0:1),0)}
+function confetti(){if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;const c=document.createElement('canvas');c.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:9';c.width=innerWidth;c.height=innerHeight;document.body.append(c);const x=c.getContext('2d'),P=[...Array(110)].map(()=>({x:Math.random()*c.width,y:-20,v:2+Math.random()*4,s:4+Math.random()*5,c:['#f3dc92','#c9a24b','#efe6d2','#8a6a22'][Math.random()*4|0],r:Math.random()*6}));let t=0;(function f(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.y+=p.v;p.x+=Math.sin(p.y/30+p.r);x.fillStyle=p.c;x.fillRect(p.x,p.y,p.s,p.s*1.6)});if(++t<150)requestAnimationFrame(f);else c.remove()})()}
 async function dl(login){const els=login?[document.querySelector(`.fc[data-login="${login}"]`)]:[...document.querySelectorAll('.fc')];
  for(const el of els){const c=await html2canvas(el,{backgroundColor:null,useCORS:true,scale:2});const a=document.createElement('a');a.download=`gitfut-${el.dataset.login}.png`;a.href=c.toDataURL();a.click()}}
 // ── Flow ──
@@ -135,12 +162,12 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>setMode(t.dataset.m))
 const USER=/^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
 async function run(u1,u2){$('err').textContent='';const b=mode==='battle';
  if(!USER.test(u1)||(b&&!USER.test(u2||''))){$('err').textContent='Enter valid GitHub username'+(b?'s':'');return}
- $('go').disabled=true;$('go').textContent='Scouting…';
+ $('go').disabled=true;$('go').textContent='Scouting…';load(1);
  try{ if(b){showBattle(await api('/api/battle',{method:'POST',body:JSON.stringify({username1:u1,username2:u2})}));hist(u1,u2)}
   else{showCard(await api('/api/profile/'+u1));hist(u1)}
   history.replaceState(null,'',b?`?u1=${u1}&u2=${u2}`:`?u=${u1}`)}
  catch(e){$('err').textContent=e.message}
- finally{$('go').disabled=false;$('go').textContent=b?'Battle!':'Generate'}}
+ finally{load(0);$('go').disabled=false;$('go').textContent=b?'Battle!':'Generate'}}
 $('go').onclick=()=>run($('u1').value.trim(),$('u2').value.trim());
 [$('u1'),$('u2')].forEach(i=>i.addEventListener('keydown',e=>e.key==='Enter'&&$('go').click()));
 function share(){navigator.clipboard.writeText(location.href).then(()=>toast('Link copied!'),()=>toast(location.href))}
@@ -157,4 +184,47 @@ async function authClick(){if(me){await api('/auth/logout',{method:'POST'}).catc
 const q=new URLSearchParams(location.search);drawHist();initAuth();
 if(q.get('u1')&&q.get('u2')){$('u1').value=q.get('u1');$('u2').value=q.get('u2');setMode('battle');run(q.get('u1'),q.get('u2'))}
 else if(q.get('u')){$('u1').value=q.get('u');run(q.get('u'),'')}
+// ── Motion (GSAP) ──
+const RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function count(set,to,d=1.2,delay=0){const o={v:0};gsap.to(o,{v:to,duration:d,delay,ease:'power2.out',onUpdate:()=>set(Math.round(o.v))})}
+function flash(a=.8){gsap.fromTo('#flash',{opacity:a},{opacity:0,duration:1,ease:'power2.out'})}
+function load(on){if(RM)return;if(on)gsap.fromTo('#prog',{scaleX:0,transformOrigin:'0 50%',opacity:1},{scaleX:.85,duration:6,ease:'power2.out'});
+ else gsap.to('#prog',{scaleX:1,duration:.25,onComplete:()=>gsap.to('#prog',{opacity:0,duration:.4})})}
+function tiltAll(){if(RM||!window.VanillaTilt)return;const cs=document.querySelectorAll('.fc');VanillaTilt.init(cs,{max:16,speed:500,scale:1.05,perspective:900,glare:false});
+ cs.forEach(c=>c.addEventListener('pointermove',e=>{const r=c.getBoundingClientRect();c.style.setProperty('--mx',(e.clientX-r.left)/r.width*100+'%');c.style.setProperty('--my',(e.clientY-r.top)/r.height*100+'%')}))}
+function animateCard(){tiltAll();if(RM)return;
+ document.querySelectorAll('.slot').forEach((s,i)=>{
+  gsap.timeline({delay:i*.15})
+   .from(s,{opacity:0,y:90,rotateY:100,scale:.7,transformPerspective:1000,duration:1.3,ease:'expo.out'})
+   .add(()=>flash(.5),.55)
+   .fromTo(s.querySelector('.sweep'),{x:'-200%'},{x:'450%',duration:1.1,ease:'power2.inOut'},.5)
+   .from(s.querySelectorAll('.fc-img,.fc-name,.fc-login,.fc-pos,.fc-flag,.fc-lang,.fc-rar'),{opacity:0,y:14,stagger:.05,duration:.6,ease:'power3.out'},.6)
+   .from(s.querySelectorAll('.fc-st div'),{opacity:0,y:12,stagger:.06,duration:.5},.85);
+  const o=s.querySelector('.fc-ovr');count(v=>o.textContent=v,+o.textContent,1.4,.45);
+  s.querySelectorAll('.fc-st div').forEach((r,j)=>{const n=r.firstChild;count(v=>n.nodeValue=v,+n.nodeValue,1.2,.8+j*.06)})})}
+function animateBattle(wi){tiltAll();if(RM)return;
+ const sl=[...document.querySelectorAll('.slot')],vs=document.createElement('div');vs.className='vs';vs.textContent='VS';sl[0].after(vs);
+ const tl=gsap.timeline();
+ tl.from(sl[0],{x:-360,rotate:-14,opacity:0,duration:.9,ease:'power4.out'})
+  .from(sl[1],{x:360,rotate:14,opacity:0,duration:.9,ease:'power4.out'},0)
+  .from(vs,{scale:3.5,opacity:0,duration:.5,ease:'expo.out'},.55)
+  .add(()=>{flash(.8);gsap.fromTo('#out',{x:-9},{x:0,duration:.7,ease:'elastic.out(2,.15)'})},.62)
+  .from('.verdict',{opacity:0,y:24,filter:'blur(14px)',duration:1.1,ease:'power3.out'},1.1)
+  .from('.panel>p,.row,.tops,.actions',{opacity:0,y:18,stagger:.06,duration:.6,ease:'power3.out'},1.3);
+ document.querySelectorAll('.bar i').forEach((b,k)=>tl.to(b,{width:b.dataset.w+'%',duration:1.3,ease:'power3.out'},1.6+(k>>1)*.07));
+ document.querySelectorAll('.num span').forEach((e,k)=>{const v=+e.textContent;if(v)count(x=>e.textContent=x,v,1.2,1.6+(k>>1)*.07)});
+ tl.add(()=>{gsap.to(sl[wi],{scale:1.08,duration:.8,ease:'back.out(2)'});gsap.to(sl[1-wi],{scale:.92,opacity:.55,filter:'grayscale(.7)',duration:.8});
+  gsap.to(sl[wi],{filter:'drop-shadow(0 0 44px #f3dc92cc)',repeat:-1,yoyo:true,duration:1.5,ease:'sine.inOut'});confetti()},2.4)}
+function boot(){$('tk').innerHTML=Array(4).fill(['Pace','Shooting','Passing','Dribbling','Defending','Physical'].map(x=>`<span>${x}</span><span>✦</span>`).join('')).join('');
+ if(RM)return;
+ let tx=innerWidth/2,ty=220,cx=tx,cy=ty;addEventListener('pointermove',e=>{tx=e.clientX;ty=e.clientY});
+ (function l(){cx+=(tx-cx)*.08;cy+=(ty-cy)*.08;document.body.style.setProperty('--sx',cx+'px');document.body.style.setProperty('--sy',cy+'px');requestAnimationFrame(l)})();
+ const b=$('go');b.addEventListener('pointermove',e=>{const r=b.getBoundingClientRect();gsap.to(b,{x:(e.clientX-r.left-r.width/2)*.3,y:(e.clientY-r.top-r.height/2)*.4,duration:.4})});
+ b.addEventListener('pointerleave',()=>gsap.to(b,{x:0,y:0,duration:.9,ease:'elastic.out(1,.4)'}));
+ gsap.timeline({defaults:{ease:'expo.out'}}).from('header',{opacity:0,y:-20,duration:1})
+  .from('.beams b',{opacity:0,duration:2.4,stagger:.3,ease:'power2.out'},0)
+  .from('.w i',{yPercent:118,rotate:4,duration:1.5,stagger:.1},.1)
+  .from('.eyebrow,.sub',{opacity:0,y:16,duration:1,stagger:.15},.5)
+  .from('.tabs,.form,.ticker',{opacity:0,y:20,duration:1,stagger:.12},.8)}
+boot();
 </script></body></html>
